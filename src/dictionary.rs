@@ -6,11 +6,11 @@ use once_cell::sync::Lazy;
 #[derive(Debug)]
 pub enum LookupResult {
     /// Sequence of letters is a prefix. To form valid word, next letter must be one of those listed in next_letters.
-    Prefix {next_letters: Vec<char>},
+    Prefix { next_letters: Vec<char> },
     /// Sequence of letters is a word. Terminate search, because no next letter may form another valid word.
     Word,
     /// Sequence of letters is both a prefix and a word. Push this sequence of moves and continue search as if it was a prefix.
-    Both {next_letters: Vec<char>}
+    Both { next_letters: Vec<char> },
 }
 
 pub type Dictionary = HashMap<&'static str, LookupResult>;
@@ -18,13 +18,17 @@ pub type Dictionary = HashMap<&'static str, LookupResult>;
 fn load_dictionary() -> Dictionary {
     // TODO: Allow loading dictionary from a file at runtime (requires dealing with lifetimes)
     // Only save 3+ letter words because of how dictionary generation works
-    let words = include_str!("dictionary.txt").lines().filter(|x| x.len() >= 3 && x.len() <= 25);
+    let words = include_str!("dictionary.txt")
+        .lines()
+        .filter(|x| x.len() >= 3 && x.len() <= 25);
     let mut dictionary: Dictionary = HashMap::new();
     for word in words {
         if let Some(x) = dictionary.get_mut(word) {
-            if let LookupResult::Prefix {next_letters} = x {
+            if let LookupResult::Prefix { next_letters } = x {
                 // It was included as prefix before, so possible prefixes are also here and we should just mark word as both and skip prefix routine.
-                *x = LookupResult::Both {next_letters: std::mem::take(next_letters)};
+                *x = LookupResult::Both {
+                    next_letters: std::mem::take(next_letters),
+                };
             }
             // Otherwise (word/both) it's a duplicate, skip.
         } else {
@@ -32,7 +36,10 @@ fn load_dictionary() -> Dictionary {
             dictionary.insert(word, LookupResult::Word);
             for i in 0..(word.len() - 1) {
                 let prefix = &word[0..=i];
-                let next_letter = word.chars().nth(i + 1).expect("Shouldn't happen, all words are 3+ in length.");
+                let next_letter = word
+                    .chars()
+                    .nth(i + 1)
+                    .expect("Shouldn't happen, all words are 3+ in length.");
                 if let Some(old) = dictionary.get_mut(prefix) {
                     match old {
                         LookupResult::Prefix { next_letters } => {
@@ -41,7 +48,12 @@ fn load_dictionary() -> Dictionary {
                             }
                         }
                         LookupResult::Word => {
-                            dictionary.insert(prefix, LookupResult::Both { next_letters: vec![next_letter] });
+                            dictionary.insert(
+                                prefix,
+                                LookupResult::Both {
+                                    next_letters: vec![next_letter],
+                                },
+                            );
                         }
                         LookupResult::Both { next_letters } => {
                             if !next_letters.contains(&next_letter) {
@@ -50,7 +62,12 @@ fn load_dictionary() -> Dictionary {
                         }
                     }
                 } else {
-                    dictionary.insert(prefix, LookupResult::Prefix { next_letters: vec![next_letter] });
+                    dictionary.insert(
+                        prefix,
+                        LookupResult::Prefix {
+                            next_letters: vec![next_letter],
+                        },
+                    );
                 }
             }
         }
@@ -60,4 +77,3 @@ fn load_dictionary() -> Dictionary {
 }
 
 pub static DICTIONARY: Lazy<Dictionary> = Lazy::new(|| load_dictionary());
-
