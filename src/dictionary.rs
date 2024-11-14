@@ -16,12 +16,9 @@ pub enum LookupResult {
 pub type Dictionary = HashMap<&'static str, LookupResult>;
 
 fn load_dictionary(path: String) -> Option<Dictionary> {
-    // TODO: Allow loading dictionary from a file at runtime (requires dealing with lifetimes)
     // Only save 3+ letter words because of how dictionary generation works
     let file = fs::read_to_string(path).ok()?;
-    let words = file
-        .lines()
-        .filter(|x| x.len() >= 3 && x.len() <= 25);
+    let words = file.lines().filter(|x| x.len() >= 3 && x.len() <= 25);
     let mut dictionary: Dictionary = HashMap::new();
     for word in words {
         let word = Box::leak(word.to_owned().into_boxed_str());

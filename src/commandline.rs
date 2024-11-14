@@ -7,7 +7,7 @@ pub struct Args {
     #[argh(subcommand)]
     pub subcommand: SubCommand,
     #[argh(option, description = "dictionary file", short = 'd')]
-    pub dictionary: Option<String>
+    pub dictionary: Option<String>,
 }
 
 #[derive(FromArgs, Debug)]

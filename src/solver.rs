@@ -33,7 +33,7 @@ pub struct Tile {
 impl Tile {
     fn empty(letter: char) -> Self {
         Tile {
-            letter: letter,
+            letter,
             letter_multiplier: 1,
             word_multiplier: 1,
             gem: false,
@@ -73,41 +73,38 @@ impl Board {
     pub fn from_str(str: &str, gem_bonus: u16) -> Option<Board> {
         let mut grid: Vec<Tile> = vec![];
         for char in str.to_lowercase().chars() {
-            match char {
-                'a'..='z' => {
-                    grid.push(Tile::empty(char));
-                }
-                '$' => {
-                    if let Some(last_tile) = grid.last_mut() {
+            if let Some(last_tile) = grid.last_mut() {
+                match char {
+                    'a'..='z' => {
+                        grid.push(Tile::empty(char));
+                    }
+                    '$' => {
                         last_tile.word_multiplier = 2;
                     }
-                }
-                '^' => {
-                    if let Some(last_tile) = grid.last_mut() {
+                    '^' => {
                         last_tile.word_multiplier = 3;
                     }
-                }
-                '+' => {
-                    if let Some(last_tile) = grid.last_mut() {
+                    '+' => {
                         last_tile.letter_multiplier = 2;
                     }
-                }
-                '*' => {
-                    if let Some(last_tile) = grid.last_mut() {
+                    '*' => {
                         last_tile.letter_multiplier = 3;
                     }
-                }
-                '!' => {
-                    if let Some(last_tile) = grid.last_mut() {
+                    '!' => {
                         last_tile.gem = true;
                     }
-                }
-                '#' => {
-                    if let Some(last_tile) = grid.last_mut() {
+                    '#' => {
                         last_tile.frozen = true;
                     }
+                    _ => (),
                 }
-                _ => {}
+            } else {
+                match char {
+                    'a'..='z' => {
+                        grid.push(Tile::empty(char));
+                    }
+                    _ => {}
+                }
             }
         }
         Some(Board {
