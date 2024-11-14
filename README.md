@@ -62,7 +62,7 @@ Commands:
   solver            run the old no-state solver
 ```
 
-If dictionary path isn't specified, it defaults to `dictionary.txt`.
+If dictionary path isn't specified, it defaults to `dictionary.txt`. The [one](dictionary.txt) included in this repo (taken from original project) should be good enough. But if you want to reduce load time (I mean, current time is still much faster than python), you can just use smaller dictionary (like the 64k one from 12dicts, I was using it since beginning of the project before switching to original one).
 
 Below are detailed descriptions of each sub-command and its arguments:
 
@@ -113,8 +113,6 @@ It is especially useful for command line.
 - `-s`/`--swap-count` - number of swaps to consider (each one costs 3 gems for you) (defaults to `0`)
 
 For example, if you have two swaps, want to somewhat prioritise gems (+3 per gem), want to pretty-print the moves and want to specify board in command line, you can run `./target/release/spellcast-solver solver -p -g 3 -s 2 -b "board string here"`
-
-Dictionary is loaded from [src/dictionary.txt](src/dictionary.txt) at compile time. The default one (taken from original project) should be good enough. But if you want to reduce load time (I mean, current time is still much faster than python), you can just recompile with smaller dictionary (like the 64k one from 12dicts, I was using it since beginning of the project before switching to original one).
 
 ## Benchmarks
 
