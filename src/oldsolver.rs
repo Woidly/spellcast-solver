@@ -1,6 +1,6 @@
 use crate::{
     commandline::SolverSubCommand,
-    dictionary::DICTIONARY,
+    dictionary::DICTIONARY_CELL,
     quit,
     solver::{Board, Move},
     utils::*,
@@ -18,7 +18,7 @@ pub fn entry(args: SolverSubCommand) {
             // Just load the dictionary by doing something with it (to time actual search time properly).
             println!(
                 "Loaded dictionary - {} entries in lookup table",
-                DICTIONARY.len()
+                DICTIONARY_CELL.get().unwrap().len()
             );
             let clock = std::time::Instant::now();
             let mut words = board.solve(args.swap_count);

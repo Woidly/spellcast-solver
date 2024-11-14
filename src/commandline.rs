@@ -3,9 +3,11 @@ use argh::FromArgs;
 #[derive(FromArgs, Debug)]
 /// An Spellcast solver.
 /// README.md has more detailed info on arguments.
-struct Args {
+pub struct Args {
     #[argh(subcommand)]
-    subcommand: SubCommand,
+    pub subcommand: SubCommand,
+    #[argh(option, description = "dictionary file", short = 'd')]
+    pub dictionary: Option<String>
 }
 
 #[derive(FromArgs, Debug)]
@@ -62,6 +64,6 @@ pub struct SolverSubCommand {
     pub swap_count: u8,
 }
 
-pub fn parse() -> SubCommand {
-    argh::from_env::<Args>().subcommand
+pub fn parse() -> Args {
+    argh::from_env()
 }

@@ -48,11 +48,12 @@ Basic colour support in terminal is recommended.
 By running help, you will get the following message:
 
 ```
-Usage: spellcast-solver <command> [<args>]
+Usage: spellcast-solver [-d <dictionary>] <command> [<args>]
 
 An Spellcast solver. README.md has more detailed info on arguments.
 
 Options:
+  -d, --dictionary  dictionary file
   --help            display usage information
 
 Commands:
@@ -60,6 +61,8 @@ Commands:
   interactive       run the interactive solver
   solver            run the old no-state solver
 ```
+
+If dictionary path isn't specified, it defaults to `dictionary.txt`.
 
 Below are detailed descriptions of each sub-command and its arguments:
 

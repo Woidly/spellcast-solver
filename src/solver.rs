@@ -1,6 +1,6 @@
 use random::Source as _;
 
-use crate::dictionary::{LookupResult, DICTIONARY};
+use crate::dictionary::{LookupResult, DICTIONARY_CELL};
 
 const DELTAS: [i8; 3] = [-1, 0, 1];
 const LETTERS: [char; 26] = [
@@ -231,11 +231,12 @@ impl Word {
 /// Then it just calls itself recursively with longer and longer move sequences until word is found or branch is cut.
 /// The further down, the faster it becomes! For example, "e" can be followed by 24 different letters, but "ea" - only by 6.
 fn new_solver(board: &Board, init_sequence: Vec<Move>, word: String, swaps: u8) -> Vec<Word> {
+    let dictionary = DICTIONARY_CELL.get().unwrap();
     let mut words = vec![];
     if let Some(last_move) = init_sequence.last() {
         let index = last_move.index();
         let old_moves: Vec<i8> = (&init_sequence).into_iter().map(|m| m.index()).collect();
-        if let Some(result) = DICTIONARY.get(&word.as_str()) {
+        if let Some(result) = dictionary.get(&word.as_str()) {
             let real_next_letters: &Vec<char>;
             match result {
                 LookupResult::Word => {

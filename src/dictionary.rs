@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fs};
 
-use once_cell::sync::Lazy;
+use once_cell::sync::OnceCell;
 
 // It never gets longer than 26, so just doing O(n) with Vec<char> is cheaper than having thousands of HashSets.
 #[derive(Debug)]
@@ -15,14 +15,16 @@ pub enum LookupResult {
 
 pub type Dictionary = HashMap<&'static str, LookupResult>;
 
-fn load_dictionary() -> Dictionary {
+fn load_dictionary(path: String) -> Option<Dictionary> {
     // TODO: Allow loading dictionary from a file at runtime (requires dealing with lifetimes)
     // Only save 3+ letter words because of how dictionary generation works
-    let words = include_str!("dictionary.txt")
+    let file = fs::read_to_string(path).ok()?;
+    let words = file
         .lines()
         .filter(|x| x.len() >= 3 && x.len() <= 25);
     let mut dictionary: Dictionary = HashMap::new();
     for word in words {
+        let word = Box::leak(word.to_owned().into_boxed_str());
         if let Some(x) = dictionary.get_mut(word) {
             if let LookupResult::Prefix { next_letters } = x {
                 // It was included as prefix before, so possible prefixes are also here and we should just mark word as both and skip prefix routine.
@@ -73,7 +75,12 @@ fn load_dictionary() -> Dictionary {
         }
     }
 
-    dictionary
+    Some(dictionary)
 }
 
-pub static DICTIONARY: Lazy<Dictionary> = Lazy::new(|| load_dictionary());
+pub static DICTIONARY_CELL: OnceCell<Dictionary> = OnceCell::new();
+
+pub fn load_dictionary_wrapper(path: Option<String>) -> Option<()> {
+    let dictionary = load_dictionary(path.unwrap_or("dictionary,txt".to_string()))?;
+    DICTIONARY_CELL.set(dictionary).ok()
+}
