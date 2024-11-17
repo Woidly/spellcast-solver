@@ -15,17 +15,14 @@ It has most of the original features:
 
 But some things are missing:
 
+- No benchmarks (WIP)
 - Doesn't recommend shuffling (use your brain to figure out when to shuffle)
 - It doesn't make any assumptions (no "estimated values"), it just works with current data (in most cases results are the same as in original solver)
 
 Some things are exclusive to this solver:
 
 - Interactive mode that makes solver actually useful in game
-
-And some things I planned aren't even made yet:
-
-- Benchmarks
-- Multi-threading
+- Multi-threading (it's not ideal, but it's still pretty good and I'll improve it in future)
 
 Score calculation follows https://discord.fandom.com/wiki/SpellCast and fully matches the original project.
 
@@ -50,12 +47,13 @@ Basic colour support in terminal is recommended.
 By running help, you will get the following message:
 
 ```
-Usage: spellcast-solver [-d <dictionary>] <command> [<args>]
+Usage: spellcast-solver [-d <dictionary>] [-t <threads>] <command> [<args>]
 
 An Spellcast solver. README.md has more detailed info on arguments.
 
 Options:
   -d, --dictionary  dictionary file
+  -t, --threads     number of threads to use (def=1)
   --help            display usage information
 
 Commands:
@@ -65,6 +63,12 @@ Commands:
 ```
 
 If dictionary path isn't specified, it defaults to `dictionary.txt`. The [one](dictionary.txt) included in this repo (taken from original project) should be good enough. But if you want to reduce load time (I mean, current time is still much faster than python), you can just use smaller dictionary (like the 64k one from 12dicts, I was using it since beginning of the project before switching to original one).
+
+You can also specify number of threads to use with `-t`/`--threads`.
+Bewarb, not all threads are created equal!
+While initial calls are indeed distributed evenly between threads, these calls aren't even by their nature.
+Boards are random, so you shouldn't expect `Move::Swap {index: 13, new_letter: 'f'}` to always return exactly 102 possible move sequences.
+Therefore, while using multiple threads improves performance a lot, you shouldn't expect 10x speedup from using 10 threads.
 
 Below are detailed descriptions of each sub-command and its arguments:
 
