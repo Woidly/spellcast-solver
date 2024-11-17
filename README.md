@@ -16,12 +16,14 @@ It has most of the original features:
 But some things are missing:
 
 - Doesn't recommend shuffling (use your brain to figure out when to shuffle)
-- No "gem management" (use your brain to figure out when to enable gem prioritising)
 - It doesn't make any assumptions (no "estimated values"), it just works with current data (in most cases results are the same as in original solver)
+
+Some things are exclusive to this solver:
+
+- Interactive mode that makes solver actually useful in game
 
 And some things I planned aren't even made yet:
 
-- Interactive mode (to make it actually useful in game)
 - Benchmarks
 - Multi-threading
 
