@@ -74,7 +74,7 @@ Read [Benchmarks](#benchmarks) section for more info.
 
 An interactive solver that is good enough to actually use it in game.
 No command-line arguments are required; everything is configured in TUI.
-TODO: Make a proper documentation of TUI when it's done, preferably in separate file.
+You can learn more about TUI itself in [INTERACTIVE.md](INTERACTIVE.md)
 
 #### `solver`
 
