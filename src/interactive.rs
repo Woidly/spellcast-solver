@@ -204,12 +204,14 @@ impl InteractiveSolver {
             }
         }
         println!(
-            "\n[{RED}Arrow keys{RESET}] Move cursor | [{RED}A{RESET}-{RED}Z{RESET}] Change letter"
+            "\n[{RED}Arrow keys{RESET}] Move cursor | [{RED}A{RESET}-{RED}Z{RESET}] Change letter
+{}[{RED}Ctrl+C{RESET}/{RED}Ctrl+Z{RESET}] Exit",
+            if done {
+                format!("[{RED}Enter{RESET}] Done\n")
+            } else {
+                String::new()
+            }
         );
-        if done {
-            println!("[{RED}Enter{RESET}] Done")
-        }
-        println!("[{RED}Ctrl+C{RESET}/{RED}Ctrl+Z{RESET}] Exit");
     }
 
     fn handle_letter_editor_state(&mut self, key: Key) {
@@ -308,20 +310,11 @@ impl InteractiveSolver {
                 format!("gem: {}", self.board.tiles[self.editor_index as usize].gem),
             ],
         );
-        let mut done = true;
-        for tile in &self.board.tiles {
-            if tile.letter == '?' {
-                done = false;
-                break;
-            }
-        }
         println!(
-            "\n[{RED}Arrow keys{RESET}] Move cursor | [{RED}G{RESET}/{RED}!{RESET}] Toggle gem"
+            "\n[{RED}Arrow keys{RESET}] Move cursor | [{RED}G{RESET}/{RED}!{RESET}] Toggle gem
+[{RED}Enter{RESET}] Done
+[{RED}Ctrl+C{RESET}/{RED}Ctrl+Z{RESET}] Exit"
         );
-        if done {
-            println!("[{RED}Enter{RESET}] Done")
-        }
-        println!("[{RED}Ctrl+C{RESET}/{RED}Ctrl+Z{RESET}] Exit");
     }
 
     fn handle_gem_editor_state(&mut self, key: Key) {
@@ -456,9 +449,11 @@ Edit meta: Gem [{RED}C{RESET}]ount | Gem score [{RED}B{RESET}]onus
                 self.print_number_picker();
             }
             Key::Char('s' | 'S') => {
-                println!("{CLEAR_HOME}{RED}Solving the board, please stand by...{RESET}");
                 println!(
-                    "{}",
+                    "{CLEAR_HOME}{RED}Solving the board, please stand by...{RESET}
+{}
+(Usually it doesn't take more than 10 seconds)
+",
                     [
                         "I promise, I'm smarter than I look... probably.",
                         "Did someone say bruteforce?",
@@ -468,7 +463,6 @@ Edit meta: Gem [{RED}C{RESET}]ount | Gem score [{RED}B{RESET}]onus
                         "Please don't crash, please don't crash!"
                     ][random::Source::read_u64(&mut get_random()) as usize % 6]
                 );
-                println!("(Usually it doesn't take more than 10 seconds)");
                 self.top_moves.clear();
                 // Added this block so words goes out of scope ASAP. Dropping it gives back a lot of RAM.
                 {
@@ -503,9 +497,9 @@ Edit meta: Gem [{RED}C{RESET}]ount | Gem score [{RED}B{RESET}]onus
 
     fn print_number_picker(&self) {
         self.print_board(-1, -1, |index| self.default_tile_renderer(index), vec![]);
-        println!("\n[{RED}0{RESET}-{RED}9{RESET}] Choose 0-9 | [{RED}-{RESET}] Choose 10");
         println!(
-            "[{RED}Esc{RESET}/{RED}Z{RESET}] Back | [{RED}Ctrl+C{RESET}/{RED}Ctrl+Z{RESET}] Exit"
+            "\n[{RED}0{RESET}-{RED}9{RESET}] Choose 0-9 | [{RED}-{RESET}] Choose 10
+[{RED}Esc{RESET}/{RED}Z{RESET}] Back | [{RED}Ctrl+C{RESET}/{RED}Ctrl+Z{RESET}] Exit"
         );
     }
 
@@ -558,13 +552,11 @@ Edit meta: Gem [{RED}C{RESET}]ount | Gem score [{RED}B{RESET}]onus
             },
             vec![],
         );
-        println!("\n[{RED}A{RESET}-{RED}E{RESET}] Choose column | [{RED}1{RESET}-{RED}5{RESET}] Choose row");
-        if self.tile_picker.0 != -1 && self.tile_picker.1 != -1 {
-            println!("[{RED}Enter{RESET}] Done");
-        }
-        println!(
-            "[{RED}Esc{RESET}/{RED}Z{RESET}] Back | [{RED}Ctrl+C{RESET}/{RED}Ctrl+Z{RESET}] Exit"
-        );
+        println!("\n[{RED}A{RESET}-{RED}E{RESET}] Choose column | [{RED}1{RESET}-{RED}5{RESET}] Choose row
+{}[{RED}Esc{RESET}/{RED}Z{RESET}] Back | [{RED}Ctrl+C{RESET}/{RED}Ctrl+Z{RESET}] Exit",
+if self.tile_picker.0 != -1 && self.tile_picker.1 != -1 {
+            format!("[{RED}Enter{RESET}] Done")
+        } else {String::new()});
     }
 
     fn handle_tile_picker(&mut self, key: Key) {
@@ -730,7 +722,13 @@ Edit meta: Gem [{RED}C{RESET}]ount | Gem score [{RED}B{RESET}]onus
                 ),
             ],
         );
-        println!("\n^ Now make the move following this instruction\nNumber on the right of tile is step number\nTwo-digit numbers use hex-like letters (e.g. 14=e)\n[{RED}A{RESET}]ccept\n[{RED}Esc{RESET}/{RED}Z{RESET}] Back | [{RED}Ctrl+C{RESET}/{RED}Ctrl+Z{RESET}] Exit");
+        println!(
+            "\n^ Now make the move following this instruction
+Number on the right of tile is step number
+Two-digit numbers use hex-like letters (e.g. 14=e)
+[{RED}A{RESET}]ccept
+[{RED}Esc{RESET}/{RED}Z{RESET}] Back | [{RED}Ctrl+C{RESET}/{RED}Ctrl+Z{RESET}] Exit"
+        );
     }
 
     fn handle_move_state(&mut self, key: Key, index: usize) {
