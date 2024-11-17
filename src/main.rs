@@ -14,7 +14,7 @@ fn main() {
     }
     match args.subcommand {
         SubCommand::Benchmark(_) => quit!("Benchmark isn't implemented yet"),
-        SubCommand::Interactive(args) => interactive::entry(args),
-        SubCommand::Solver(args) => oldsolver::entry(args),
+        SubCommand::Interactive(sub) => interactive::entry(sub, args.threads),
+        SubCommand::Solver(sub) => oldsolver::entry(sub, args.threads),
     }
 }

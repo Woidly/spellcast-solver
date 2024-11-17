@@ -8,6 +8,13 @@ pub struct Args {
     pub subcommand: SubCommand,
     #[argh(option, description = "dictionary file", short = 'd')]
     pub dictionary: Option<String>,
+    #[argh(
+        option,
+        description = "number of threads to use (def=1)",
+        short = 't',
+        default = "1"
+    )]
+    pub threads: u8
 }
 
 #[derive(FromArgs, Debug)]

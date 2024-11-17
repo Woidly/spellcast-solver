@@ -91,6 +91,7 @@ struct InteractiveSolver {
     editor_index: i8,
     elapsed: String,
     gems: u8,
+    num_threads: u8,
     state: State,
     tile_picker: (i8, i8),
     top_moves: Vec<Word>,
@@ -105,12 +106,13 @@ impl InteractiveSolver {
         }
     }
 
-    fn new() -> Self {
+    fn new(num_threads: u8) -> Self {
         InteractiveSolver {
             board: InteractiveSolver::empty_board(),
             editor_index: 0,
             elapsed: String::new(),
             gems: 3,
+            num_threads,
             state: State::LetterEditor,
             tile_picker: (-1, -1),
             top_moves: vec![],
@@ -498,25 +500,25 @@ Edit meta: Gem [{RED}C{RESET}]ount | Gem score [{RED}B{RESET}]onus
                     ][random::Source::read_u64(&mut get_random()) as usize % 6]
                 );
                 self.top_moves.clear();
-                // Added this block so words goes out of scope ASAP. Dropping it gives back a lot of RAM.
-                {
-                    let clock = std::time::Instant::now();
-                    let mut words = self.board.solve(self.gems / 3);
-                    self.elapsed = format!("{:.2}ms", clock.elapsed().as_secs_f64() * 1000.);
-                    words.sort_by_key(|x| -(x.score as i32));
-                    let mut existing_words = vec![];
-                    let mut counter = 0;
-                    for word in words {
-                        if counter >= 10 {
-                            break;
-                        }
-                        if existing_words.contains(&word.word) {
-                            continue;
-                        }
-                        counter += 1;
-                        existing_words.push((&word.word).clone());
-                        self.top_moves.push(word);
+                let clock = std::time::Instant::now();
+                // Making one little temporary value is worth it, threads have so much more performance benefit.
+                let board = std::mem::take(&mut self.board);
+                let (mut words, board) = board.solve(self.gems / 3, self.num_threads);
+                self.board = board;
+                self.elapsed = format!("{:.2}ms", clock.elapsed().as_secs_f64() * 1000.);
+                words.sort_by_key(|x| -(x.score as i32));
+                let mut existing_words = vec![];
+                let mut counter = 0;
+                for word in words {
+                    if counter >= 10 {
+                        break;
                     }
+                    if existing_words.contains(&word.word) {
+                        continue;
+                    }
+                    counter += 1;
+                    existing_words.push((&word.word).clone());
+                    self.top_moves.push(word);
                 }
                 self.state = State::Solved;
                 self.print_solved_state();
@@ -842,7 +844,7 @@ Two-digit numbers use hex-like letters (e.g. 14=e)
     }
 }
 
-pub fn entry(_: InteractiveSubCommand) {
+pub fn entry(_: InteractiveSubCommand, num_threads: u8) {
     let getch = GetchWrapper::new();
     println!(
         "{CLEAR_HOME}\
@@ -863,5 +865,5 @@ Basic 16-colour support is recommended.
             _ => (),
         }
     }
-    InteractiveSolver::new().run(getch);
+    InteractiveSolver::new(num_threads).run(getch);
 }

@@ -6,7 +6,7 @@ use crate::{
     utils::*,
 };
 
-pub fn entry(args: SolverSubCommand) {
+pub fn entry(args: SolverSubCommand, num_threads: u8) {
     if args.swap_count > 3 {
         quit!("Swap amount can't be higher than 3");
     }
@@ -22,7 +22,7 @@ pub fn entry(args: SolverSubCommand) {
                 DICTIONARY_CELL.get().unwrap().len()
             );
             let clock = std::time::Instant::now();
-            let mut words = board.solve(args.swap_count);
+            let (mut words, board) = board.solve(args.swap_count, num_threads);
             println!(
                 "Found {} unique move sequences in {:.2}ms",
                 words.len(),

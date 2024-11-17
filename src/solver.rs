@@ -72,6 +72,12 @@ pub struct Board {
     pub gem_bonus: u16,
 }
 
+impl std::default::Default for Board {
+    fn default() -> Self {
+        Self { tiles: std::array::from_fn(|_| Tile::empty('?')), gem_bonus: Default::default() }
+    }
+}
+
 #[derive(Debug)]
 pub struct ParseBoardError {}
 
@@ -165,39 +171,63 @@ impl Board {
         }
     }
 
-    /// Sort of wrapper for actual solver. It creates initial moves consisting of just a single tile.
-    /// One Normal move with tile's original letter and (if we have swaps) Swap moves for rest of the letters.
-    /// This function just returns raw Vec<Word>, all the processing is done in program entry.
-    pub fn solve(&self, swaps: u8) -> Vec<Word> {
+    /// Consumes the board, solves it, and returns it back with solutions. 
+    /// Just a wrapper for actual solver that manages multi-threading.
+    /// Why the consume stuff? Because borrow checker.
+    /// Like it's the only solution I could find.
+    /// Maybe I'll find a better solution one day.
+    // FIXME: Find a better solution for multi-threading.
+    pub fn solve(self, swaps: u8, num_threads: u8) -> (Vec<Word>, Self) {
+        let mut calls = vec![];
         let mut words = vec![];
-        // TODO: Multi-threading (and maybe command line argument to configure amount of threads).
         let mut index = 0;
         for tile in &self.tiles {
             if tile.frozen {
                 continue;
             }
-            words.extend(new_solver(
-                self,
-                vec![Move::Normal { index }],
-                tile.letter.to_string(),
-                swaps,
-            ));
+            calls.push((vec![Move::Normal { index }], tile.letter.to_string(), swaps));
             if swaps > 0 {
                 for new_letter in LETTERS {
                     if new_letter == tile.letter {
                         continue;
                     }
-                    words.extend(new_solver(
-                        self,
-                        vec![Move::Swap { index, new_letter }],
-                        new_letter.to_string(),
-                        swaps - 1,
-                    ));
+                    calls.push((vec![Move::Swap { index, new_letter }], new_letter.to_string(), swaps - 1));
                 }
             }
             index += 1;
         }
-        words
+        if num_threads <= 1 {
+            for call in calls {
+                words.extend(new_solver(&self, call.0, call.1, call.2));
+            }
+            return (words, self);
+        } else {
+            // Let's hope bad stuff doesn't happen because of unsafe.
+            // I mean, all threads are guaranteed to finish at the point of getting back self from Box.
+            // It's just a silly little trick to convince borrow checker that threads can indeed spawn.
+            let board_ptr = Box::into_raw(Box::new(self));
+            let mut threads = vec![];
+            let chunk_size = (calls.len() + num_threads as usize - 1) / num_threads as usize;
+            {
+                let board_ref: &'static Board = unsafe { &*board_ptr };
+                while !calls.is_empty() {
+                    let chunk = calls.drain(..chunk_size.min(calls.len())).collect::<Vec<_>>(); // Bit hackish, but at least it doesn't do cloning.
+                    threads.push(std::thread::spawn(|| {
+                        let mut thread_words = vec![];
+                        for call in chunk {
+                            thread_words.extend(new_solver(board_ref, call.0, call.1, call.2));
+                        }
+                        thread_words
+                    }))
+                }
+                for thread in threads {
+                    if let Ok(thread_words) = thread.join() {
+                        words.extend(thread_words);
+                    }
+                }
+            }
+            return (words, unsafe {*Box::from_raw(board_ptr)})
+        }
     }
 }
 
