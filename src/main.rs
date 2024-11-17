@@ -1,5 +1,6 @@
 mod commandline;
 mod dictionary;
+mod interactive;
 mod oldsolver;
 mod solver;
 mod utils;
@@ -13,7 +14,7 @@ fn main() {
     }
     match args.subcommand {
         SubCommand::Benchmark(_) => quit!("Benchmark isn't implemented yet"),
-        SubCommand::Interactive(_) => quit!("Interactive mode isn't implemented yet"),
+        SubCommand::Interactive(args) => interactive::entry(args),
         SubCommand::Solver(args) => oldsolver::entry(args),
     }
 }

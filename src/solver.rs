@@ -1,6 +1,9 @@
 use random::Source as _;
 
-use crate::dictionary::{LookupResult, DICTIONARY_CELL};
+use crate::{
+    dictionary::{LookupResult, DICTIONARY_CELL},
+    utils::*,
+};
 
 const DELTAS: [i8; 3] = [-1, 0, 1];
 const LETTERS: [char; 26] = [
@@ -31,7 +34,7 @@ pub struct Tile {
 }
 
 impl Tile {
-    fn empty(letter: char) -> Self {
+    pub fn empty(letter: char) -> Self {
         Tile {
             letter,
             letter_multiplier: 1,
@@ -186,32 +189,43 @@ impl Board {
 /// Struct used to represent a sequence of moves that forms a valid word.
 /// It exists to cache String representation of a word and resulting score.
 pub struct Word {
+    pub gems: u8,
     pub moves: Vec<Move>,
-    pub word: String,
     pub score: u16, // Using u16 for score just in case of some miracle overflow
+    pub swap_count: u8,
+    pub word: String,
+    pub word_formatted: String,
 }
 
 impl Word {
     fn new(moves: Vec<Move>, board: &Board, word: String) -> Word {
-        let mut score: u16 = 0;
-        let mut word_multiplier: u16 = 1;
+        let mut gems = 0;
+        let mut score = 0;
+        let mut swap_count = 0;
+        let mut word_formatted = String::new();
+        let mut word_multiplier = 1;
         for m in &moves {
             match m {
                 Move::Normal { index } => {
                     let tile = &board.tiles[*index as usize];
                     score += (get_letter_points(tile.letter) * tile.letter_multiplier) as u16;
+                    word_formatted += &tile.letter.to_string();
                     word_multiplier = word_multiplier.max(tile.word_multiplier as u16);
                     if tile.gem {
                         score += board.gem_bonus;
+                        gems += 1;
                     }
                 }
                 Move::Swap { index, new_letter } => {
                     let tile = &board.tiles[*index as usize];
                     score += (get_letter_points(*new_letter) * tile.letter_multiplier) as u16;
+                    word_formatted += &format!("{RED}{new_letter}{RESET}");
                     word_multiplier = word_multiplier.max(tile.word_multiplier as u16);
                     if tile.gem {
                         score += board.gem_bonus;
+                        gems += 1;
                     }
+                    swap_count += 1;
                 }
             }
         }
@@ -219,7 +233,14 @@ impl Word {
         if moves.len() >= 6 {
             score += 10;
         }
-        Word { moves, word, score }
+        Word {
+            gems,
+            moves,
+            score,
+            swap_count,
+            word,
+            word_formatted,
+        }
     }
 }
 
