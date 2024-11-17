@@ -14,7 +14,8 @@ pub fn entry(args: SolverSubCommand) {
         .board
         .or_else(|| std::fs::read_to_string("board.txt").ok())
     {
-        if let Some(board) = Board::from_str(&board_str, args.gem_value as u16) {
+        if let Ok(mut board) = board_str.parse::<Board>() {
+            board.gem_bonus = args.gem_value as u16;
             // Just load the dictionary by doing something with it (to time actual search time properly).
             println!(
                 "Loaded dictionary - {} entries in lookup table",

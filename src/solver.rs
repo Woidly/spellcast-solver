@@ -72,8 +72,21 @@ pub struct Board {
     pub gem_bonus: u16,
 }
 
-impl Board {
-    pub fn from_str(str: &str, gem_bonus: u16) -> Option<Board> {
+#[derive(Debug)]
+pub struct ParseBoardError {}
+
+impl std::fmt::Display for ParseBoardError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Invalid board (most likely, wrong number of tiles)")
+    }
+}
+
+impl std::error::Error for ParseBoardError {}
+
+impl std::str::FromStr for Board {
+    type Err = ParseBoardError;
+
+    fn from_str(str: &str) -> Result<Self, Self::Err> {
         let mut grid: Vec<Tile> = vec![];
         for char in str.to_lowercase().chars() {
             if let Some(last_tile) = grid.last_mut() {
@@ -110,12 +123,14 @@ impl Board {
                 }
             }
         }
-        Some(Board {
-            tiles: grid.try_into().ok()?,
-            gem_bonus,
+        Ok(Board {
+            tiles: grid.try_into().map_err(|_| ParseBoardError {})?,
+            gem_bonus: 0,
         })
     }
+}
 
+impl Board {
     /// Generates a random board for use in benchmark.
     pub fn random(
         rng: &mut random::Default,
