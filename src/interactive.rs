@@ -696,7 +696,7 @@ if self.tile_picker.0 != -1 && self.tile_picker.1 != -1 {
                         letters.push(tile.letter.to_string());
                     }
                     Move::Swap { new_letter, .. } => {
-                        letters.push(format!("{GREEN}{}{RESET}", new_letter));
+                        letters.push(format!("{RED}{}{RESET}", new_letter));
                     }
                 }
             }
