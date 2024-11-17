@@ -97,6 +97,7 @@ struct InteractiveSolver {
 }
 
 impl InteractiveSolver {
+    /// Returns a Board filled with ? tiles.
     fn empty_board() -> Board {
         Board {
             tiles: std::array::from_fn(|_| Tile::empty('?')),
@@ -175,6 +176,10 @@ impl InteractiveSolver {
         }
     }
 
+    /// Prints a visual representation of letter editor board.
+    /// Has column/row highlighting (based on self.editor_index).
+    /// Has custom tile renderer (selected - red, ? - grey, everything else - normal).
+    /// Has custom meta (pos: index (column/row)).
     fn print_letter_editor_board(&self) {
         self.print_board(
             self.editor_index % 5,
@@ -214,6 +219,10 @@ impl InteractiveSolver {
         );
     }
 
+    /// Handles key press for GemEditor state.
+    /// Arrow keys - move self.editor_index.
+    /// Enter - switch to Normal.
+    /// A-Z - change tile.letter for current tile, optionally move self.editor_index to available ? tile.
     fn handle_letter_editor_state(&mut self, key: Key) {
         match key {
             // Arrow-key-based navigation to make it good enough to be general-purpose editor, not just one for entering initial board state.
@@ -282,6 +291,10 @@ impl InteractiveSolver {
         }
     }
 
+    /// Prints a visual representation of gem editor board.
+    /// Has column/row highlighting (based on self.editor_index).
+    /// Has custom tile renderer (selected - red, unselected - normal, gem - adds ! indicator).
+    /// Has custom meta (pos: index (column/row), gem: true/false).
     fn print_gem_editor_board(&self) {
         self.print_board(
             self.editor_index % 5,
@@ -317,6 +330,10 @@ impl InteractiveSolver {
         );
     }
 
+    /// Handles key press for GemEditor state.
+    /// Arrow keys - move self.editor_index.
+    /// Enter - switch to Normal.
+    /// G/! - toggle tile.gem for current tile.
     fn handle_gem_editor_state(&mut self, key: Key) {
         match key {
             Key::Left => {
@@ -356,6 +373,10 @@ impl InteractiveSolver {
         }
     }
 
+    /// Prints a visual representation of normal state board.
+    /// Has no column/row highlighting.
+    /// Uses default tile renderer.
+    /// Has custom meta (X gems (X/3 swaps), (+Y score per gem)).
     fn print_normal_board(&self) {
         self.print_board(
             -1,
@@ -375,6 +396,19 @@ Edit meta: Gem [{RED}C{RESET}]ount | Gem score [{RED}B{RESET}]onus
         );
     }
 
+    /// Handles key press for Normal state.
+    /// L - switch to LetterEditor.
+    /// G - switch to GemEditor.
+    /// N - reset every inner state (except for gem_bonus), make new ? board, switch to LetterEditor.
+    /// 0 - reset letter multiplier of every tile to 1.
+    /// + - switch to TilePicker(DL).
+    /// * - switch to TilePicker(TL).
+    /// 1 - reset word multiplier of every tile to 1.
+    /// $/2 - switch to TilePicker(TwoX).
+    /// ^/3 - switch to TilePicker(ThreeX).
+    /// C - switch to PickNumber(GemCount).
+    /// B - switch to PickNumber(GemBonus).
+    /// S - solves the board, switches to Solved.
     fn handle_normal_state(&mut self, key: Key) {
         match key {
             Key::Char('l' | 'L') => {
@@ -495,6 +529,12 @@ Edit meta: Gem [{RED}C{RESET}]ount | Gem score [{RED}B{RESET}]onus
         }
     }
 
+    /// Prints a visual representation of number picker.
+    /// Has no column/row highlighting.
+    /// Uses default tile renderer.
+    /// Has no custom meta.
+    /// 
+    /// Why would it? It literally asks for a single number.
     fn print_number_picker(&self) {
         self.print_board(-1, -1, |index| self.default_tile_renderer(index), vec![]);
         println!(
@@ -503,6 +543,10 @@ Edit meta: Gem [{RED}C{RESET}]ount | Gem score [{RED}B{RESET}]onus
         );
     }
 
+    /// Handles key press for NumberPicker state.
+    /// Z - switch to Normal.
+    /// 0-9 - change some parameter to 0-9 according to inner.
+    /// - - change some parameter to 10 according to inner.
     fn handle_number_picker(&mut self, key: Key) {
         let action = if let State::PickNumber(x) = &self.state {
             x
@@ -534,6 +578,10 @@ Edit meta: Gem [{RED}C{RESET}]ount | Gem score [{RED}B{RESET}]onus
         self.print_normal_board();
     }
 
+    /// Prints a visual representation of tile picker.
+    /// Has column/row highlighting (based on self.tile_picker).
+    /// Has custom tile renderer (red if every non -1 parameter matches, normal otherwise).
+    /// Has no custom meta.
     fn print_tile_picker(&self) {
         self.print_board(
             self.tile_picker.0,
@@ -559,6 +607,11 @@ if self.tile_picker.0 != -1 && self.tile_picker.1 != -1 {
         } else {String::new()});
     }
 
+    /// Handles key press for TilePicker state.
+    /// Enter - if both column and row are present, change selected tile's multipliers according to inner.
+    /// Z - switch to Normal.
+    /// A-E - set column (self.tile_picker.0)
+    /// 1-5 - set row (self.tile_picker.1)
     fn handle_tile_picker(&mut self, key: Key) {
         let action = if let State::PickTile(x) = &self.state {
             x
@@ -606,11 +659,11 @@ if self.tile_picker.0 != -1 && self.tile_picker.1 != -1 {
                 return;
             }
             Key::Char(x) => match x {
-                '1'..='5' => {
-                    self.tile_picker.1 = x as i8 - '1' as i8;
-                }
                 'A'..='E' | 'a'..='e' => {
                     self.tile_picker.0 = x.to_ascii_lowercase() as i8 - 'a' as i8;
+                }
+                '1'..='5' => {
+                    self.tile_picker.1 = x as i8 - '1' as i8;
                 }
                 _ => return,
             },
@@ -619,6 +672,10 @@ if self.tile_picker.0 != -1 && self.tile_picker.1 != -1 {
         self.print_tile_picker();
     }
 
+    /// Prints a visual representation of solved state board.
+    /// Has no column/row highlighting.
+    /// Uses default tile renderer.
+    /// Has custom meta (X elapsed).
     fn print_solved_state(&self) {
         self.print_board(
             -1,
@@ -659,6 +716,9 @@ if self.tile_picker.0 != -1 && self.tile_picker.1 != -1 {
         );
     }
 
+    /// Handles key press for Solved state.
+    /// U - switch to Normal.
+    /// 0-9 - switch to Move(X), where X is pressed key - 1.
     fn handle_solved_state(&mut self, key: Key) {
         match key {
             Key::Char('u' | 'U') => {
@@ -682,6 +742,10 @@ if self.tile_picker.0 != -1 && self.tile_picker.1 != -1 {
         }
     }
 
+    /// Prints a visual representation of move state board.
+    /// Has no column/row highlighting.
+    /// Has custom tile renderer (red if swap move, normal if normal move, replaced with invisible * if no move, hexadecimal move order indicator).
+    /// Has custom meta (+X points, Y swaps used, Z gems collected, W gems after move).
     fn print_move_state(&mut self, index: usize) {
         let word = &self.top_moves[index];
         let mut tiles: [Option<(u8, &Move)>; 25] = std::array::from_fn(|_| None);
@@ -731,6 +795,9 @@ Two-digit numbers use hex-like letters (e.g. 14=e)
         );
     }
 
+    /// Handles key press for Move state.
+    /// A - update gem count, replace tiles involved in move with ?, switch to LetterEditor.
+    /// Esc/Z - switch to Solved.
     fn handle_move_state(&mut self, key: Key, index: usize) {
         match key {
             Key::Char('a' | 'A') => {
@@ -755,6 +822,7 @@ Two-digit numbers use hex-like letters (e.g. 14=e)
         }
     }
 
+    /// Runs the infinite loop that reads getch and calls respective state handler.
     fn run(mut self, getch: GetchWrapper) {
         self.print_letter_editor_board();
         loop {
@@ -763,9 +831,11 @@ Two-digit numbers use hex-like letters (e.g. 14=e)
                 State::LetterEditor => self.handle_letter_editor_state(key),
                 State::GemEditor => self.handle_gem_editor_state(key),
                 State::Normal => self.handle_normal_state(key),
+                // Can't pass inner value directly into handlers because of borrow checker.
                 State::PickNumber(_) => self.handle_number_picker(key),
                 State::PickTile(_) => self.handle_tile_picker(key),
                 State::Solved => self.handle_solved_state(key),
+                // And here we can, because index is primitive.
                 State::Move(index) => self.handle_move_state(key, index),
             }
         }
