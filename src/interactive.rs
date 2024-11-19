@@ -778,7 +778,7 @@ if self.tile_picker.0 != -1 && self.tile_picker.1 != -1 {
                 }
             },
             vec![
-                word.word_formatted.clone(),
+                word.formatted(&self.board),
                 format!("+{} points", word.score),
                 format!("{} swaps used", word.swap_count),
                 format!("{} gems collected", word.gems),

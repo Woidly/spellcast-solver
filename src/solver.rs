@@ -239,7 +239,6 @@ pub struct Word {
     pub score: u16, // Using u16 for score just in case of some miracle overflow
     pub swap_count: u8,
     pub word: String,
-    pub word_formatted: String,
 }
 
 impl Word {
@@ -247,14 +246,13 @@ impl Word {
         let mut gems = 0;
         let mut score = 0;
         let mut swap_count = 0;
-        let mut word_formatted = String::new();
         let mut word_multiplier = 1;
         for m in &moves {
             match m {
                 Move::Normal { index } => {
                     let tile = &board.tiles[*index as usize];
                     score += (get_letter_points(tile.letter) * tile.letter_multiplier) as u16;
-                    word_formatted += &tile.letter.to_string();
+                    // word_formatted += &tile.letter.to_string();
                     word_multiplier = word_multiplier.max(tile.word_multiplier as u16);
                     if tile.gem {
                         score += board.gem_bonus;
@@ -264,7 +262,7 @@ impl Word {
                 Move::Swap { index, new_letter } => {
                     let tile = &board.tiles[*index as usize];
                     score += (get_letter_points(*new_letter) * tile.letter_multiplier) as u16;
-                    word_formatted += &format!("{RED}{new_letter}{RESET}");
+                    // word_formatted += &format!("{RED}{new_letter}{RESET}");
                     word_multiplier = word_multiplier.max(tile.word_multiplier as u16);
                     if tile.gem {
                         score += board.gem_bonus;
@@ -283,9 +281,24 @@ impl Word {
             moves,
             score,
             swap_count,
-            word,
-            word_formatted,
+            word
         }
+    }
+
+    pub fn formatted(&self, board: &Board) -> String {
+        let mut word_formatted = String::new();
+        for m in &self.moves {
+            match m {
+                Move::Normal { index } => {
+                    let tile = &board.tiles[*index as usize];
+                    word_formatted += &tile.letter.to_string();
+                }
+                Move::Swap { new_letter, .. } => {
+                    word_formatted += &format!("{RED}{new_letter}{RESET}");
+                }
+            }
+        }
+        word_formatted
     }
 }
 
