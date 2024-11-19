@@ -14,13 +14,13 @@ pub fn get_random() -> random::Xorshift128Plus {
     random::default(
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .expect("Time flow should be linear")
+            .expect("time flow should be linear")
             .as_nanos() as u64,
     )
 }
 
 pub static BLACK: &str = "\x1B[30m";
-pub static CLEAR_HOME: &str = "\x1B[2J\x1B[H"; // Both clears the terminal and returns cursor to top left
+pub static CLEAR_HOME: &str = "\x1B[2J\x1B[H"; // Both clears the terminal and returns cursor to top left.
 pub static GREEN: &str = "\x1B[92m";
 pub static GREY: &str = "\x1B[90m";
 pub static MAGENTA: &str = "\x1B[35m";

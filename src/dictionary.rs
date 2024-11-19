@@ -16,7 +16,7 @@ pub enum LookupResult {
 pub type Dictionary = HashMap<&'static str, LookupResult>;
 
 fn load_dictionary(path: String) -> Option<Dictionary> {
-    // Only save 3+ letter words because of how dictionary generation works
+    // Only save 3+ letter words because of how dictionary generation works.
     let file = fs::read_to_string(path).ok()?;
     let words = file.lines().filter(|x| x.len() >= 3 && x.len() <= 25);
     let mut dictionary: Dictionary = HashMap::new();
@@ -38,7 +38,7 @@ fn load_dictionary(path: String) -> Option<Dictionary> {
                 let next_letter = word
                     .chars()
                     .nth(i + 1)
-                    .expect("Shouldn't happen, all words are 3+ in length.");
+                    .expect("all words should be 3+ in length");
                 if let Some(old) = dictionary.get_mut(prefix) {
                     match old {
                         LookupResult::Prefix { next_letters } => {

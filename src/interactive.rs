@@ -68,7 +68,7 @@ enum State {
 /// No dots mean there is no multiplier, one dot means x2/DL and two dots mean x3/TL.
 fn get_multiplier_indicator(word_multiplier: u8, letter_multiplier: u8) -> char {
     // https://en.wikipedia.org/wiki/Braille_Patterns
-    // Unwrap is safe because 0x2800 + {0, 0x1, 0x9} + {0, 0x40, 0xC0} is valid Unicode
+    // Unwrap is safe because 0x2800 + {0, 0x1, 0x9} + {0, 0x40, 0xC0} is valid Unicode.
     char::from_u32(
         0x2800
             + match word_multiplier {
@@ -86,7 +86,6 @@ fn get_multiplier_indicator(word_multiplier: u8, letter_multiplier: u8) -> char 
 }
 
 struct InteractiveSolver {
-    // TODO: Maybe clean up those a bit, move some of state-specific values into state inner.
     board: Board,
     editor_index: i8,
     elapsed: String,
@@ -612,8 +611,8 @@ if self.tile_picker.0 != -1 && self.tile_picker.1 != -1 {
     /// Handles key press for TilePicker state.
     /// Enter - if both column and row are present, change selected tile's multipliers according to inner.
     /// Z - switch to Normal.
-    /// A-E - set column (self.tile_picker.0)
-    /// 1-5 - set row (self.tile_picker.1)
+    /// A-E - set column (self.tile_picker.0).
+    /// 1-5 - set row (self.tile_picker.1).
     fn handle_tile_picker(&mut self, key: Key) {
         let action = if let State::PickTile(x) = &self.state {
             x

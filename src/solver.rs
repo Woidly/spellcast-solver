@@ -144,7 +144,6 @@ impl Board {
         do_double_letter: bool,
         do_double_word: bool,
     ) -> Board {
-        // TODO: Maybe switch to another random crate. But the popular "rand" seems to have too much dependencies.
         let mut tiles =
             std::array::from_fn(|_| Tile::empty(LETTERS[(rng.read_f64() * 26.) as usize]));
         if do_gems {
@@ -171,7 +170,7 @@ impl Board {
         }
     }
 
-    /// Consumes the board, solves it, and returns it back with solutions. 
+    /// Consumes the board, solves it, and returns it back with solutions.
     /// Just a wrapper for actual solver that manages multi-threading.
     /// Why the consume stuff? Because borrow checker.
     /// Like it's the only solution I could find.
@@ -236,7 +235,7 @@ impl Board {
 pub struct Word {
     pub gems: u8,
     pub moves: Vec<Move>,
-    pub score: u16, // Using u16 for score just in case of some miracle overflow
+    pub score: u16, // Using u16 for score just in case of some miracle overflow.
     pub swap_count: u8,
     pub word: String,
 }
@@ -252,7 +251,6 @@ impl Word {
                 Move::Normal { index } => {
                     let tile = &board.tiles[*index as usize];
                     score += (get_letter_points(tile.letter) * tile.letter_multiplier) as u16;
-                    // word_formatted += &tile.letter.to_string();
                     word_multiplier = word_multiplier.max(tile.word_multiplier as u16);
                     if tile.gem {
                         score += board.gem_bonus;
@@ -262,7 +260,6 @@ impl Word {
                 Move::Swap { index, new_letter } => {
                     let tile = &board.tiles[*index as usize];
                     score += (get_letter_points(*new_letter) * tile.letter_multiplier) as u16;
-                    // word_formatted += &format!("{RED}{new_letter}{RESET}");
                     word_multiplier = word_multiplier.max(tile.word_multiplier as u16);
                     if tile.gem {
                         score += board.gem_bonus;
@@ -373,7 +370,7 @@ fn new_solver(board: &Board, init_sequence: Vec<Move>, word: String, swaps: u8) 
                 }
             }
         } else {
-            // This is dead branch, no reason to continue search
+            // This is dead branch, no reason to continue search.
             return words;
         }
     }

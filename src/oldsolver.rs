@@ -8,7 +8,7 @@ use crate::{
 
 pub fn entry(args: SolverSubCommand, num_threads: u8) {
     if args.swap_count > 3 {
-        quit!("Swap amount can't be higher than 3");
+        quit!("Swap amount can't be higher than 3!");
     }
     if let Some(board_str) = args
         .board
@@ -16,7 +16,6 @@ pub fn entry(args: SolverSubCommand, num_threads: u8) {
     {
         if let Ok(mut board) = board_str.parse::<Board>() {
             board.gem_bonus = args.gem_value as u16;
-            // Just load the dictionary by doing something with it (to time actual search time properly).
             println!(
                 "Loaded dictionary - {} entries in lookup table",
                 DICTIONARY_CELL.get().unwrap().len()
