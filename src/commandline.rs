@@ -14,7 +14,7 @@ pub struct Args {
         short = 't',
         default = "1"
     )]
-    pub threads: u8
+    pub threads: u8,
 }
 
 #[derive(FromArgs, Debug)]

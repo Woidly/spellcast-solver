@@ -534,7 +534,7 @@ Edit meta: Gem [{RED}C{RESET}]ount | Gem score [{RED}B{RESET}]onus
     /// Has no column/row highlighting.
     /// Uses default tile renderer.
     /// Has no custom meta.
-    /// 
+    ///
     /// Why would it? It literally asks for a single number.
     fn print_number_picker(&self) {
         self.print_board(-1, -1, |index| self.default_tile_renderer(index), vec![]);

@@ -74,7 +74,10 @@ pub struct Board {
 
 impl std::default::Default for Board {
     fn default() -> Self {
-        Self { tiles: std::array::from_fn(|_| Tile::empty('?')), gem_bonus: Default::default() }
+        Self {
+            tiles: std::array::from_fn(|_| Tile::empty('?')),
+            gem_bonus: Default::default(),
+        }
     }
 }
 
@@ -190,7 +193,11 @@ impl Board {
                     if new_letter == tile.letter {
                         continue;
                     }
-                    calls.push((vec![Move::Swap { index, new_letter }], new_letter.to_string(), swaps - 1));
+                    calls.push((
+                        vec![Move::Swap { index, new_letter }],
+                        new_letter.to_string(),
+                        swaps - 1,
+                    ));
                 }
             }
             index += 1;
@@ -210,7 +217,9 @@ impl Board {
             {
                 let board_ref: &'static Board = unsafe { &*board_ptr };
                 while !calls.is_empty() {
-                    let chunk = calls.drain(..chunk_size.min(calls.len())).collect::<Vec<_>>(); // Bit hackish, but at least it doesn't do cloning.
+                    let chunk = calls
+                        .drain(..chunk_size.min(calls.len()))
+                        .collect::<Vec<_>>(); // Bit hackish, but at least it doesn't do cloning.
                     threads.push(std::thread::spawn(|| {
                         let mut thread_words = vec![];
                         for call in chunk {
@@ -225,7 +234,7 @@ impl Board {
                     }
                 }
             }
-            return (words, unsafe {*Box::from_raw(board_ptr)})
+            return (words, unsafe { *Box::from_raw(board_ptr) });
         }
     }
 }
@@ -278,7 +287,7 @@ impl Word {
             moves,
             score,
             swap_count,
-            word
+            word,
         }
     }
 
