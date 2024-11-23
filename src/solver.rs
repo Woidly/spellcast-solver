@@ -182,8 +182,9 @@ impl Board {
     pub fn solve(self, swaps: u8, num_threads: u8) -> (Vec<Word>, Self) {
         let mut calls = vec![];
         let mut words = vec![];
-        let mut index = 0;
+        let mut index = -1;
         for tile in &self.tiles {
+            index += 1;
             if tile.frozen {
                 continue;
             }
@@ -200,7 +201,6 @@ impl Board {
                     ));
                 }
             }
-            index += 1;
         }
         if num_threads <= 1 {
             for call in calls {
