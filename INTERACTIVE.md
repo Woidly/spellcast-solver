@@ -84,7 +84,7 @@ Edit meta: Gem [C]ount | Gem score [B]onus
 - Pressing **`1`** removes word multiplier, no matter where it is located
 - Pressing **`$`** or **`2`** opens [tile picker](#tile-picker) and will set selected tile's word multiplier to 2x
 - Pressing **`^`** or **`3`** does the same, but word multiplier is set to 3x
-- Pressing **`C`** opens [number picker](#number-picker) and changes current gem count to specified number (swap amount is based on it)
+- Pressing **`C`** opens [number picker](#number-picker) and changes current gem count to specified number (swap count is based on it)
 - Pressing **`B`** opens [number picker](#number-picker) and changes additional score added to tiles with gems to specified number
 - Pressing **`S`** starts solving the board and switches to [`Solved` state](#solved) when it's done
 
@@ -173,8 +173,8 @@ Similarly to tile picker, you can go back with **`Esc`**/**`Z`** and see action 
 After solving the board you will be sent to this menu.
 Below state indicator you can see amount of time spent on solving.
 
-- By pressing **`U`** you can back to [`Normal` state](#normal) (in case you realised you made a mistake)
-- By pressing **`1`**-**`9`** and **`0`** you can select one of words listed below. After each word there is score in parenthesis, if some letter in word was changed via swap, it will be highlighted. Selecting a word will switch you to [`Move` state](#move)
+- By pressing **`U`** you can go back to [`Normal` state](#normal) (in case you realised you made a mistake)
+- By pressing **`1`**-**`9`** and **`0`** you can select one of words listed below. There is score in parenthesis after each word. If some letter in word was changed via swap, it will be highlighted in red. Selecting a word will switch you to [`Move` state](#move)
 
 ## Move
 

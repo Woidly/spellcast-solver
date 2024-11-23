@@ -2,7 +2,7 @@
 
 It's a... Spellcast solver... isn't the name obvious? (It's currently WIP.)
 
-This project is inspired by WintrCat's Spellcast solver [[YouTube video]](https://youtu.be/hYoojWO9hh8) [[YouTube video 2]](https://youtu.be/QvJATba04u8) [[GitHub repo]](https://github.com/WintrCat/spellcastsolver) (but mine is faster cause Rust + several new optimizations).
+This project is inspired by WintrCat's Spellcast solver [[YouTube video]](https://youtu.be/hYoojWO9hh8) [[YouTube video 2]](https://youtu.be/QvJATba04u8) [[GitHub repo]](https://github.com/WintrCat/spellcastsolver) (but mine is more than 10x faster cause Rust + several new optimizations).
 
 ## Stuff
 
@@ -17,7 +17,7 @@ It has most of the original features:
 But some things are missing:
 
 - Doesn't recommend shuffling (use your brain to figure out when to shuffle)
-- It doesn't make any assumptions (no "estimated values"), it just works with current data (in most cases results are the same as in original solver)
+- It doesn't make any assumptions (no "estimated values"), it just works with current board state (in most cases results are the same as in original solver)
 
 Some things are exclusive to this solver:
 
@@ -43,7 +43,7 @@ My code is much simpler than the original, if I do say so myself.
 
 This tool is for terminal (no GUI).
 Everything can be configured via command-line arguments (except for interactive mode).
-Basic colour support in terminal is recommended.
+Basic 16-colour support in terminal is recommended.
 You can learn more about command line arguments in [CLI.md](CLI.md).
 
 ## Benchmarks

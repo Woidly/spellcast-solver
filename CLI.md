@@ -36,12 +36,13 @@ Therefore, while using multiple threads improves performance a lot, you shouldn'
 
 ### `benchmark`
 
-**As of now, benchmarks aren't implemented.**
+**As of now, built-in benchmark isn't implemented yet due to technical difficulties.**
+**You can find benchmark results in respective [section](README.md#benchmarks) of README.**
 
 ### `interactive`
 
 An interactive solver that is good enough to actually use it in game.
-No command-line arguments are required; everything is configured in TUI.
+No specific command-line arguments are required (except for dictionary and number of threads, these are program-wide); everything is configured in TUI.
 You can learn more about TUI itself in [INTERACTIVE.md](INTERACTIVE.md)
 
 ### `solver`
@@ -68,7 +69,7 @@ R!N!R!NV!
 IE!WCI
 ```
 
-You just type the entire board, optionally suffixing letters with certain symbols (you can use multiple symbols after one letter):
+You just type the entire board (case-insensitive), optionally suffixing letters with certain symbols (you can use multiple symbols after one letter):
 
 - `$` - double word score (2x) (make sure to escape it when running from the command line)
 - `^` - triple word score (3x) (it was listed in the wiki, so I added it)
