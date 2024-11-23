@@ -24,6 +24,10 @@ Some things are exclusive to this solver:
 - Interactive mode that makes solver actually useful in game
 - Multi-threading (it's not ideal, but it's still pretty good and I'll improve it in future)
 
+And some things aren't even made yet (but will be made, eventually):
+
+- Automatic solving (image recognition to parse board, mouse inputs)
+
 Score calculation follows https://discord.fandom.com/wiki/SpellCast and fully matches the original project.
 
 ## How
