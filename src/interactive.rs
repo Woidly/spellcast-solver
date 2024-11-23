@@ -168,7 +168,9 @@ impl InteractiveSolver {
         let tile = &self.board.tiles[index as usize];
         let letter = tile.letter;
         let multipliers = get_multiplier_indicator(tile.word_multiplier, tile.letter_multiplier);
-        if tile.gem {
+        if tile.frozen {
+            format!("{GREY}{letter} {RESET}")
+        } else if tile.gem {
             format!("{GREEN}{letter}{multipliers}{RESET}")
         } else {
             format!("{letter}{multipliers}")
@@ -187,7 +189,7 @@ impl InteractiveSolver {
                 let letter = self.board.tiles[index as usize].letter;
                 if index == self.editor_index {
                     format!("{RED}{letter} {RESET}")
-                } else if letter == '?' {
+                } else if letter == '?' || letter == '#' {
                     format!("{GREY}{letter} {RESET}")
                 } else {
                     format!("{letter} ")
@@ -208,9 +210,10 @@ impl InteractiveSolver {
         }
         println!(
             "\n[{RED}Arrow keys{RESET}] Move cursor | [{RED}A{RESET}-{RED}Z{RESET}] Change letter
+[{RED}#{RESET}] Frozen tile
 {}[{RED}Ctrl+C{RESET}/{RED}Ctrl+Z{RESET}] Exit",
             if done {
-                format!("[{RED}Enter{RESET}] Done\n")
+                format!("[{RED}Enter{RESET}] Done | ")
             } else {
                 String::new()
             }
@@ -220,7 +223,8 @@ impl InteractiveSolver {
     /// Handles key press for GemEditor state.
     /// Arrow keys - move self.editor_index.
     /// Enter - switch to Normal.
-    /// A-Z - change tile.letter for current tile, optionally move self.editor_index to available ? tile.
+    /// A-Z - change tile.letter for current tile, set tile.frozen = false, optionally move self.editor_index to available ? tile.
+    /// # - the same thing, but tile.letter = '#', tile.frozen = true
     fn handle_letter_editor_state(&mut self, key: Key) {
         match key {
             // Arrow-key-based navigation to make it good enough to be general-purpose editor, not just one for entering initial board state.
@@ -260,9 +264,14 @@ impl InteractiveSolver {
             }
             Key::Char(x) => match x {
                 // Change letter on current tile, move cursor to next ? tile if it exists.
-                'a'..='z' | 'A'..='Z' => {
+                'a'..='z' | 'A'..='Z' | '#' | '3' => {
                     let tile = &mut self.board.tiles[self.editor_index as usize];
-                    tile.letter = x.to_ascii_lowercase();
+                    tile.frozen = x == '#' || x == '3';
+                    if tile.frozen {
+                        tile.letter = '#';
+                    } else {
+                        tile.letter = x.to_ascii_lowercase();
+                    }
                     let mut moved = false;
                     if self.editor_index < 24 {
                         for index in self.editor_index..25 {
