@@ -28,8 +28,6 @@ impl GetchWrapper {
     }
 }
 
-static COLUMNS: [(&str, i8); 5] = [("A", 0), ("B", 1), ("C", 2), ("D", 3), ("E", 4)];
-
 #[derive(Debug)]
 enum TileAction {
     DL,
@@ -134,7 +132,7 @@ impl InteractiveSolver {
         meta: Vec<String>,
     ) {
         let mut buf = format!("{CLEAR_HOME}# ");
-        for (letter, number) in COLUMNS {
+        for (letter, number) in BOARD_COLUMNS {
             if number == highlight_column {
                 buf += &format!("{RED}{letter} {RESET}");
             } else {
@@ -196,10 +194,9 @@ impl InteractiveSolver {
                 }
             },
             vec![format!(
-                "pos: {} ({}{})",
+                "pos: {} ({})",
                 self.editor_index,
-                COLUMNS[(self.editor_index % 5) as usize].0,
-                self.editor_index / 5 + 1
+                i2c(self.editor_index)
             )],
         );
         let mut done = true;
@@ -316,10 +313,9 @@ impl InteractiveSolver {
             },
             vec![
                 format!(
-                    "pos: {} ({}{})",
+                    "pos: {} ({})",
                     self.editor_index,
-                    COLUMNS[(self.editor_index % 5) as usize].0,
-                    self.editor_index / 5 + 1
+                    i2c(self.editor_index)
                 ),
                 format!("gem: {}", self.board.tiles[self.editor_index as usize].gem),
             ],

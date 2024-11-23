@@ -30,6 +30,7 @@ pub fn entry(args: SolverSubCommand, num_threads: u8) {
             words.sort_by_key(|x| -(x.score as i32));
             let mut existing_words = vec![];
             let mut counter = 0;
+            let mut new_words = vec![];
             for word in words {
                 if counter >= args.move_count {
                     break;
@@ -39,62 +40,76 @@ pub fn entry(args: SolverSubCommand, num_threads: u8) {
                 }
                 counter += 1;
                 existing_words.push((&word.word).clone());
-                let mut letters = vec![];
+                new_words.push(word);
+            }
+            words = new_words;
+            // Reverse it, because most terminal emulators have auto-scrolling, and most likely only last table(s) will fit into view.
+            for word in words.into_iter().rev() {
                 let mut swaps = vec![];
                 for m in &word.moves {
                     match m {
-                        Move::Normal { index } => {
-                            letters.push(board.tiles[*index as usize].letter.to_string())
-                        }
                         Move::Swap { index, new_letter } => {
-                            letters.push(format!("{RED}{new_letter}{RESET}"));
                             swaps.push(format!(
-                                "{} -> {} @ {},{}",
+                                "{} -> {} @ {}",
                                 board.tiles[*index as usize].letter,
                                 new_letter,
-                                index % 5,
-                                index / 5
+                                i2c(*index)
                             ));
                         }
+                        _ => ()
                     }
                 }
                 if args.pretty_print {
-                    let mut table: [String; 25] = std::array::from_fn(|_| ".".to_string());
+                    let mut tiles: [Option<(u8, &Move)>; 25] = std::array::from_fn(|_| None);
+                    let mut move_counter: u8 = 0;
                     for m in &word.moves {
-                        if let Move::Swap { .. } = m {
-                            table[m.index() as usize] = format!("{RED}{}{RESET}", m.letter(&board));
-                        } else {
-                            table[m.index() as usize] = m.letter(&board).to_string();
-                        }
+                        tiles[m.index() as usize] = Some((move_counter, m));
+                        move_counter += 1;
                     }
-                    println!("=========[{}]=========", counter);
-                    for y in 0..5 {
-                        for x in 0..5 {
-                            print!("{}", table[y * 5 + x]);
-                        }
-                        if y == 0 {
-                            print!(" {}", letters.join(""));
-                        }
-                        if y == 1 {
-                            print!(" {} points", word.score);
-                        }
-                        if y >= 2 {
-                            let swap_index = y - 2;
-                            if swap_index < swaps.len() {
-                                print!(" {}", swaps[swap_index as usize]);
+                    let mut buf = String::from("# ");
+                    for (letter, _) in BOARD_COLUMNS {
+                        buf = buf + letter + " ";
+                    }
+                    buf += &format!(" {}\n", word.formatted(&board));
+                    for row in 0..5 {
+                        buf += &format!("{} ", row + 1);
+                        for index in (row * 5)..(row * 5 + 5) {
+                            if let Some((step, m)) = tiles[index] {
+                                let converted_step;
+                                if step < 10 {
+                                    converted_step = step.to_string();
+                                } else {
+                                    converted_step = (('a' as u8 + step - 10) as char).to_string();
+                                }
+                                let letter = m.letter(&board);
+                                if let Move::Swap { .. } = m {
+                                    buf += &format!("{RED}{letter}{GREY}{converted_step}{RESET}")
+                                } else {
+                                    buf += &format!("{letter}{GREY}{converted_step}{RESET}")
+                                }
+                            } else {
+                                buf += &format!("{BLACK}* {RESET}");
                             }
                         }
-                        println!();
+                        if row == 0 {
+                            buf += &format!(" +{} points\n", word.score);
+                        } else if row - 1 < swaps.len() {
+                            buf += &format!(" {}\n", swaps[row - 1 as usize]);
+                        } else {
+                            buf += "\n";
+                        }
                     }
+                    println!("=========[{counter}]=========\n{buf}");
                 } else {
                     println!(
-                        "{}. [{}] {} / {}",
+                        "{}. {} (+{}) / {}",
                         counter,
+                        word.formatted(&board),
                         word.score,
-                        letters.join(""),
                         swaps.join("; ")
                     )
                 }
+                counter -= 1;
             }
         } else {
             quit!("Failed to parse board string!");
