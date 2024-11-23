@@ -687,22 +687,10 @@ if self.tile_picker.0 != -1 && self.tile_picker.1 != -1 {
         let mut buffer = String::from("\n");
         for index in 0..self.top_moves.len() {
             let word = &self.top_moves[index];
-            let mut letters = vec![];
-            for m in &word.moves {
-                match m {
-                    Move::Normal { index } => {
-                        let tile = &self.board.tiles[*index as usize];
-                        letters.push(tile.letter.to_string());
-                    }
-                    Move::Swap { new_letter, .. } => {
-                        letters.push(format!("{RED}{}{RESET}", new_letter));
-                    }
-                }
-            }
             buffer += &format!(
                 "[{RED}{}{RESET}] {} (+{})",
                 (index + 1) % 10,
-                letters.join(""),
+                word.formatted(&self.board),
                 word.score
             );
             if (index + 1) % 2 == 0 {
