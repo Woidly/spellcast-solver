@@ -727,8 +727,10 @@ if self.tile_picker.0 != -1 && self.tile_picker.1 != -1 {
                     } else {
                         index -= 1;
                     }
-                    self.state = State::Move(index);
-                    self.print_move_state(index);
+                    if index < self.top_moves.len() {
+                        self.state = State::Move(index);
+                        self.print_move_state(index);
+                    }
                 }
                 _ => (),
             },
