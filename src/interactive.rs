@@ -321,11 +321,7 @@ impl InteractiveSolver {
                 }
             },
             vec![
-                format!(
-                    "pos: {} ({})",
-                    self.editor_index,
-                    i2c(self.editor_index)
-                ),
+                format!("pos: {} ({})", self.editor_index, i2c(self.editor_index)),
                 format!("gem: {}", self.board.tiles[self.editor_index as usize].gem),
             ],
         );
