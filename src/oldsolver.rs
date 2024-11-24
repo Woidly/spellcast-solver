@@ -56,7 +56,7 @@ pub fn entry(args: SolverSubCommand, num_threads: u8) {
                                 i2c(*index)
                             ));
                         }
-                        _ => ()
+                        _ => (),
                     }
                 }
                 if args.pretty_print {
