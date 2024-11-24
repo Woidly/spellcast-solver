@@ -25,6 +25,7 @@ fn get_letter_points(letter: char) -> u8 {
     }
 }
 
+#[derive(Debug)]
 pub struct Tile {
     pub letter: char,
     pub letter_multiplier: u8,
