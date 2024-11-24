@@ -1,3 +1,4 @@
+mod automatic;
 mod commandline;
 mod dictionary;
 mod interactive;
@@ -13,6 +14,7 @@ fn main() {
         quit!("Failed to load dictionary from file");
     }
     match args.subcommand {
+        SubCommand::Automatic(sub) => automatic::entry(sub, args.threads),
         SubCommand::Benchmark(_) => quit!("Benchmark isn't implemented yet"),
         SubCommand::Interactive(sub) => interactive::entry(sub, args.threads),
         SubCommand::Solver(sub) => oldsolver::entry(sub, args.threads),

@@ -20,9 +20,33 @@ pub struct Args {
 #[derive(FromArgs, Debug)]
 #[argh(subcommand)]
 pub enum SubCommand {
+    Automatic(AutomaticSubCommand),
     Benchmark(BenchmarkSubCommand),
     Interactive(InteractiveSubCommand),
     Solver(SolverSubCommand),
+}
+
+#[derive(FromArgs, Debug)]
+#[argh(subcommand, name = "automatic", description = "run the automatic solver")]
+pub struct AutomaticSubCommand {
+    #[argh(
+        option,
+        description = "image file (def=stdin)",
+        short = 'i',
+        default = "'-'.to_string()"
+    )]
+    pub input: String,
+    #[argh(
+        option,
+        description = "output file (def=stdout)",
+        short = 'o',
+        default = "'-'.to_string()"
+    )]
+    pub output: String,
+    #[argh(option, description = "x offset", short='x')]
+    pub x: u16,
+    #[argh(option, description = "y offset", short='y')]
+    pub y: u16,
 }
 
 #[derive(FromArgs, Debug)]
