@@ -27,7 +27,11 @@ pub enum SubCommand {
 }
 
 #[derive(FromArgs, Debug)]
-#[argh(subcommand, name = "automatic", description = "run the automatic solver")]
+#[argh(
+    subcommand,
+    name = "automatic",
+    description = "run the automatic solver"
+)]
 pub struct AutomaticSubCommand {
     #[argh(
         option,
@@ -43,10 +47,10 @@ pub struct AutomaticSubCommand {
         default = "'-'.to_string()"
     )]
     pub output: String,
-    #[argh(option, description = "x offset", short='x')]
-    pub x: u16,
-    #[argh(option, description = "y offset", short='y')]
-    pub y: u16,
+    #[argh(option, description = "x offset", short = 'x')]
+    pub x: u32,
+    #[argh(option, description = "y offset", short = 'y')]
+    pub y: u32,
 }
 
 #[derive(FromArgs, Debug)]

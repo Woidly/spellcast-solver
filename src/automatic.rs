@@ -47,6 +47,6 @@ pub fn entry(args: AutomaticSubCommand, num_threads: u8) {
     println!("This is WIP! Only some aspects of parsing are done.");
     println!(
         "There are {} gems on the image",
-        gem_count(img, args.x as u32, args.y as u32)
+        gem_count(img, args.x, args.y)
     )
 }
