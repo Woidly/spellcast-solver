@@ -1,3 +1,8 @@
+#[cfg(feature = "automatic")]
+#[path = "automatic.rs"]
+mod automatic;
+#[cfg(not(feature = "automatic"))]
+#[path = "automatic_stub.rs"]
 mod automatic;
 mod commandline;
 mod dictionary;
