@@ -39,10 +39,13 @@ And the final command will be `spectacle -fbno /tmp/spellshot.png`, where `f` - 
 
 And the final part you'll need - mouse automation.
 In solver's stdout (or output file) you'll find few commands separated by newlines.
-There are only two commands, they are pretty simple to implement.
+There are only three commands, they are pretty simple to implement.
 
 - `SWAP x1 y1 x2 y2 x3 y3` - swapping letter; you'll need to click swap button at `x1,y1`, wait for around 100 ms, click tile at `x2,y2`, wait for swap menu to appear (TODO: insert wait time here), click new letter in swap menu at `x3,y3` and wait for swap move to complete (TODO: insert wait time here).
 - `MOVE x1 y1 x2 y2 [xN yN...]` - making actual move; you'll need to move mouse to `x1,y1`, wait for around 50 ms, hold primary mouse button, move to `x2,y2` while still holding it, wait for around 50 ms, repeat until coordinates end, release primary mouse button.
+- `PRINT [message...]` - some message from solver; you don't really need to implement it, but if your mouse command parser has visible terminal, those messages may be useful to you.
+
+**Note that errors in solver are handled via panic! wrapper and will print output to stderr in format that can't be parsed, therefore it's better to leave stderr as is and only parse stdout.**
 
 This is example implementation made as bash script (using `xdotool` for mouse) that reads commands from stdin:
 
