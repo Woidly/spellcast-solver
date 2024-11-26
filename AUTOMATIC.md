@@ -1,8 +1,12 @@
 # Automatic solver setup guide (WIP)
 
-This automatic solver is intended to be very lightweight, so it just reads pixels instead of more complicated stuff, so it is very sensitive to changes (and therefore requires very specific setup to work properly).
-(Though, if you want, you can use OCR or AI and feed it's output into CLI solver.)
-For the same reason it doesn't implement screenshot and mouse movement directly, leaving this up to you.
+> [!NOTE]  
+> Screenshots and mouse control are out of scope of this project.
+> You'll have to implement those functions yourself.
+> Do not worry, basic Bash scripting should be enough.
+
+> [!IMPORTANT]
+> Make sure carefully follow setup instructions, as solver's image recognition is very sensitive even to smallest changes.
 
 ## Window size
 
