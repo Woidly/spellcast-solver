@@ -6,7 +6,7 @@ use once_cell::sync::Lazy;
 use crate::{
     commandline::AutomaticSubCommand,
     quit,
-    solver::{Board, Tile},
+    solver::{Board, Move, Tile},
 };
 
 type Image = ImageBuffer<Rgb<u8>, Vec<u8>>;
@@ -124,6 +124,22 @@ fn parse_board(img: &Image, x: u32, y: u32) -> Board {
     }
 }
 
+fn get_swap_menu_coord(letter: char, x: u32, y: u32) -> (u32, u32) {
+    let o = letter as u8 - 'a' as u8;
+    let ox = o % 6;
+    let oy = o / 6;
+    (x + 480 + ox as u32 * 65, y + 270 + oy as u32 * 65)
+}
+
+fn get_tile_coord(index: i8, x: u32, y: u32) -> (u32, u32) {
+    let column = index % 5;
+    let row = index / 5;
+    (
+        x + 464 + column as u32 * 70 + 25,
+        y + 167 + row as u32 * 69 + 25,
+    )
+}
+
 pub fn entry(args: AutomaticSubCommand, num_threads: u8) {
     let mut image_buf = Vec::new();
     if args.input == "-" {
@@ -148,17 +164,42 @@ pub fn entry(args: AutomaticSubCommand, num_threads: u8) {
         _converted_img = dyn_img.to_rgb8();
         img = &_converted_img;
     }
-    println!("This is WIP! Only some aspects of parsing are done.");
-    println!(
-        "There are {} gems on the image",
-        gem_count(img, args.x, args.y)
-    );
+    println!("PRINT This is WIP! Expect letter detection to return incorrect results.");
     let board = parse_board(img, args.x, args.y);
-    println!("Tiles:");
-    for row in 0..5 {
-        for column in 0..5 {
-            print!("{}", board.tiles[row * 5 + column].letter);
+    let clock = std::time::Instant::now();
+    let (mut words, _) = board.solve(gem_count(img, args.x, args.y) / 3, num_threads);
+    words.sort_by_key(|x| -(x.score as i32));
+    if let Some(word) = words.first() {
+        println!(
+            "PRINT {:.2}ms elapsed",
+            clock.elapsed().as_secs_f64() * 1000.
+        );
+        println!("PRINT {} (+{})", word.word, word.score);
+        println!("PRINT {} swaps used", word.swap_count);
+        println!("PRINT {} gems collected", word.gems);
+        for m in &word.moves {
+            if let Move::Swap { index, new_letter } = m {
+                let swap_button_x = args.x + 740;
+                let swap_button_y = args.y + 580;
+                let (tile_x, tile_y) = get_tile_coord(*index, args.x, args.y);
+                let (letter_x, letter_y) = get_swap_menu_coord(*new_letter, args.x, args.y);
+                println!(
+                    "SWAP {swap_button_x} {swap_button_y} {tile_x} {tile_y} {letter_x} {letter_y}"
+                );
+            }
         }
-        println!();
+        println!(
+            "MOVE {}",
+            (&word.moves)
+                .into_iter()
+                .map(|m| {
+                    let (tile_x, tile_y) = get_tile_coord(m.index(), args.x, args.y);
+                    format!("{tile_x} {tile_y}")
+                })
+                .collect::<Vec<_>>()
+                .join(" ")
+        );
+    } else {
+        quit!("No solution found!");
     }
 }
