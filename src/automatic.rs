@@ -1,4 +1,7 @@
-use std::{fs::File, io::Read as _};
+use std::{
+    fs::File,
+    io::{Read as _, Write},
+};
 
 use image::{ImageBuffer, Rgb};
 use once_cell::sync::Lazy;
@@ -164,31 +167,52 @@ pub fn entry(args: AutomaticSubCommand, num_threads: u8) {
         _converted_img = dyn_img.to_rgb8();
         img = &_converted_img;
     }
-    println!("PRINT This is WIP! Expect letter detection to return incorrect results.");
+    let mut _stdout;
+    let mut _file;
+    let output: &mut dyn Write;
+    if args.output == "-" {
+        _stdout = std::io::stdout().lock();
+        output = &mut _stdout;
+    } else {
+        _file = File::create(args.output)
+            .map_err(|e| quit!("Error when opening file: {e:?}"))
+            .unwrap();
+        output = &mut _file;
+    }
+    writeln!(
+        output,
+        "PRINT This is WIP! Expect letter detection to return incorrect results."
+    )
+    .unwrap();
     let board = parse_board(img, args.x, args.y);
     let clock = std::time::Instant::now();
     let (mut words, _) = board.solve(gem_count(img, args.x, args.y) / 3, num_threads);
     words.sort_by_key(|x| -(x.score as i32));
     if let Some(word) = words.first() {
-        println!(
+        writeln!(
+            output,
             "PRINT {:.2}ms elapsed",
             clock.elapsed().as_secs_f64() * 1000.
-        );
-        println!("PRINT {} (+{})", word.word, word.score);
-        println!("PRINT {} swaps used", word.swap_count);
-        println!("PRINT {} gems collected", word.gems);
+        )
+        .unwrap();
+        writeln!(output, "PRINT {} (+{})", word.word, word.score).unwrap();
+        writeln!(output, "PRINT {} swaps used", word.swap_count).unwrap();
+        writeln!(output, "PRINT {} gems collected", word.gems).unwrap();
         for m in &word.moves {
             if let Move::Swap { index, new_letter } = m {
                 let swap_button_x = args.x + 740;
                 let swap_button_y = args.y + 580;
                 let (tile_x, tile_y) = get_tile_coord(*index, args.x, args.y);
                 let (letter_x, letter_y) = get_swap_menu_coord(*new_letter, args.x, args.y);
-                println!(
+                writeln!(
+                    output,
                     "SWAP {swap_button_x} {swap_button_y} {tile_x} {tile_y} {letter_x} {letter_y}"
-                );
+                )
+                .unwrap();
             }
         }
-        println!(
+        writeln!(
+            output,
             "MOVE {}",
             (&word.moves)
                 .into_iter()
@@ -198,7 +222,8 @@ pub fn entry(args: AutomaticSubCommand, num_threads: u8) {
                 })
                 .collect::<Vec<_>>()
                 .join(" ")
-        );
+        )
+        .unwrap();
     } else {
         quit!("No solution found!");
     }
