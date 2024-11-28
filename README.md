@@ -84,4 +84,7 @@ Each benchmark is run with 100 boards, so 25 for each swap count (0/1/2/3).
 | WCT-pypy    | 2.6 ms  | 119.3 ms | 2982.9 ms  | 51150.3 ms |
 | WCT         | 3.5 ms  | 263.2 ms | 10129.1 ms | 100000+ ms |
 
-(Single-threaded version is faster for 0 swaps because multithreading is overkill for such a simple task)
+> [!NOTE]  
+> Results related to my solver are from commit `b34bb07`.
+> I will update results only when making commits related to performance.
+> As for WintrCat's solver, it seems abandoned and therefore won't be updated at all.
