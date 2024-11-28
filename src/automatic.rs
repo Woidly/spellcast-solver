@@ -131,7 +131,7 @@ fn get_swap_menu_coord(letter: char, x: u32, y: u32) -> (u32, u32) {
     let o = letter as u8 - 'a' as u8;
     let ox = o % 6;
     let oy = o / 6;
-    (x + 480 + ox as u32 * 65, y + 270 + oy as u32 * 65)
+    (x + 510 + ox as u32 * 52, y + 270 + oy as u32 * 52)
 }
 
 fn get_tile_coord(index: i8, x: u32, y: u32) -> (u32, u32) {
@@ -167,6 +167,15 @@ pub fn entry(args: AutomaticSubCommand, num_threads: u8) {
         _converted_img = dyn_img.to_rgb8();
         img = &_converted_img;
     }
+    // begin debug
+    let binding = image::open("/home/woidly/Pictures/Screenshots/swapmenu.png").unwrap();
+    let mut imm = binding.to_rgb8();
+    for char in 'a'..='z' {
+        let (x, y) = get_swap_menu_coord(char, args.x, args.y);
+        imm.put_pixel(x, y, Rgb([255, 0, 0]));
+    }
+    imm.save("/tmp/debugswap.png");
+    // end debug
     let mut _stdout;
     let mut _file;
     let output: &mut dyn Write;
