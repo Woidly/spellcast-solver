@@ -167,15 +167,6 @@ pub fn entry(args: AutomaticSubCommand, num_threads: u8) {
         _converted_img = dyn_img.to_rgb8();
         img = &_converted_img;
     }
-    // begin debug
-    let binding = image::open("/home/woidly/Pictures/Screenshots/swapmenu.png").unwrap();
-    let mut imm = binding.to_rgb8();
-    for char in 'a'..='z' {
-        let (x, y) = get_swap_menu_coord(char, args.x, args.y);
-        imm.put_pixel(x, y, Rgb([255, 0, 0]));
-    }
-    imm.save("/tmp/debugswap.png");
-    // end debug
     let mut _stdout;
     let mut _file;
     let output: &mut dyn Write;
