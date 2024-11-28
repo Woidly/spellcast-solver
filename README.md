@@ -1,8 +1,8 @@
 # SpellcastSolver
 
-It's a... Spellcast solver... isn't the name obvious? (It's currently WIP.)
+It's a... Spellcast solver... isn't the name obvious?
 
-This project is inspired by WintrCat's Spellcast solver [[YouTube video]](https://youtu.be/hYoojWO9hh8) [[YouTube video 2]](https://youtu.be/QvJATba04u8) [[GitHub repo]](https://github.com/WintrCat/spellcastsolver) (but mine is more than 10x faster cause Rust + several new optimizations).
+This project is inspired by WintrCat's [Spellcast solver](https://github.com/WintrCat/spellcastsolver) (you can check out his videos on original solver - [[1]](https://youtu.be/hYoojWO9hh8), [[2]](https://youtu.be/QvJATba04u8)). Though, mine solver is **more than 10x faster** than original because it is written in Rust and has several new optimizations. You can see list of features below (some are still WIP):
 
 ## Features
 
