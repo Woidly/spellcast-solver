@@ -4,31 +4,43 @@ It's a... Spellcast solver... isn't the name obvious? (It's currently WIP.)
 
 This project is inspired by WintrCat's Spellcast solver [[YouTube video]](https://youtu.be/hYoojWO9hh8) [[YouTube video 2]](https://youtu.be/QvJATba04u8) [[GitHub repo]](https://github.com/WintrCat/spellcastsolver) (but mine is more than 10x faster cause Rust + several new optimizations).
 
-## Stuff
+## Features
 
-It has most of the original features:
+As solver is now much more complicated than original, I logically split it into 4 parts:
 
-- Considering tile boosts when calculating score (DL, TL, 2x, 3x, long word bonus)
-- Frozen tiles
-- 1-3 tile swaps
-- Ability to prioritise gems (configurable)
-- Benchmark (WIP)
+### Solver ([`src/solver.rs`](src/solver.rs))
 
-But some things are missing:
+Program's core, code that actually "solves" the board.
 
-- Doesn't recommend shuffling (use your brain to figure out when to shuffle)
-- It doesn't make any assumptions (no "estimated values"), it just works with current board state (in most cases results are the same as in original solver)
+- Proper score calculation according to [wiki](https://discord.fandom.com/wiki/SpellCast) (DL/TL, 2x/3x, long word bonus)
+- Additional score bonus for tiles with gems to prioritise them
+- "Frozen tiles" (e.g. tiles that solver completely avoids)
+- Ability to use swaps
+- Multithreading (it's not ideal, but it's still pretty good and I'll improve it in future)
 
-Some things are exclusive to this solver:
+Though it works in a different way, results are as good as in original, because solver is guaranteed to visit every valid node.
+Only difference for you is that it doesn't use "estimated values", therefore it doesn't recommend shuffling like original (though you can decide when to shuffle yourself).
 
-- Interactive mode that makes solver actually useful in game
-- Multi-threading (it's not ideal, but it's still pretty good and I'll improve it in future)
+### CLI solver ([`src/oldsolver.rs`](src/oldsolver.rs))
 
-And some things aren't even made yet (but will be made, eventually):
+Slightly better version of WintrCat's project.
 
-- Automatic solving (image recognition to parse board, mouse inputs)
+- Same board string format as original
+- Everything configurable via command line arguments
+- Pretty-printing moves is bit more useful as it shows order of moves
 
-Score calculation follows https://discord.fandom.com/wiki/SpellCast and fully matches the original project.
+### Interactive solver ([`src/interactive.rs`](src/interactive.rs))
+
+A TUI solver.
+Not sure whether it's better than CLI solver.
+You can learn more in [INTERACTIVE.md](INTERACTIVE.md)
+
+### Automatic solver (WIP)
+
+Weird framework for making automatic solver that can be actually useful in game.
+You input screenshot, it uses OCR provided by you to parse the board, it solves the board and gives bunch of commands that your script must turn into mouse movements.
+(Do not worry, it includes decent script examples.)
+It is WIP, check `automatic` branch for more details (eventually it'll be merged into `main`).
 
 ## How
 
