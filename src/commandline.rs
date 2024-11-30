@@ -6,8 +6,13 @@ use argh::FromArgs;
 pub struct Args {
     #[argh(subcommand)]
     pub subcommand: SubCommand,
-    #[argh(option, description = "dictionary file", short = 'd')]
-    pub dictionary: Option<String>,
+    #[argh(
+        option,
+        description = "dictionary file",
+        short = 'd',
+        default = "\"dictionary.txt\".to_string()"
+    )]
+    pub dictionary: String,
     #[argh(
         option,
         description = "number of threads to use (def=1)",

@@ -77,7 +77,7 @@ fn load_dictionary(path: String) -> Option<Dictionary> {
 
 pub static DICTIONARY_CELL: OnceCell<Dictionary> = OnceCell::new();
 
-pub fn load_dictionary_wrapper(path: Option<String>) -> Option<()> {
-    let dictionary = load_dictionary(path.unwrap_or("dictionary.txt".to_string()))?;
+pub fn load_dictionary_wrapper(path: String) -> Option<()> {
+    let dictionary = load_dictionary(path)?;
     DICTIONARY_CELL.set(dictionary).ok()
 }
