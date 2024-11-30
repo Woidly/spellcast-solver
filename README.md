@@ -87,4 +87,4 @@ Each benchmark is run with 100 boards, so 25 for each swap count (0/1/2/3).
 > [!NOTE]  
 > Results related to my solver are from commit `b34bb07`.
 > I will update results only when making commits related to performance.
-> As for WintrCat's solver, it seems abandoned and therefore won't be updated at all.
+> As for WintrCat's solver, current results are from pre-multiprocessing version of repository.
