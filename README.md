@@ -1,4 +1,4 @@
-# SpellcastSolver
+# spellcast-solver
 
 It's a... Spellcast solver... isn't the name obvious?
 
