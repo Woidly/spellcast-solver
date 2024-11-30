@@ -85,6 +85,12 @@ Each benchmark is run with 100 boards, so 25 for each swap count (0/1/2/3).
 | WCT         | 3.5 ms  | 263.2 ms | 10129.1 ms | 100000+ ms |
 
 > [!NOTE]  
+> Results related to my solver do not include time it takes to load a dictionary (~50ms).
+> The same applies to WintrCat's solver.
+> Also, results related to my solver do not include sorting time, which may be up to 3-4 seconds for 3 swaps (as there may be over 10 million possible moves).
+> I am currently working on reducing sorting time and RAM usage (which is on average 3GB for 3 swaps).
+
+> [!NOTE]  
 > Results related to my solver are from commit `b34bb07`.
 > I will update results only when making commits related to performance.
 > As for WintrCat's solver, current results are from pre-multiprocessing version of repository.
