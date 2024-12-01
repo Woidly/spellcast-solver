@@ -26,10 +26,10 @@ pub fn i2c(index: i8) -> String {
     format!("{}{}", BOARD_COLUMNS[(index % 5) as usize].0, index / 5 + 1)
 }
 
-pub static BLACK: &str = "\x1B[30m";
-pub static CLEAR_HOME: &str = "\x1B[2J\x1B[H"; // Both clears the terminal and returns cursor to top left.
-pub static GREEN: &str = "\x1B[92m";
-pub static GREY: &str = "\x1B[90m";
-pub static MAGENTA: &str = "\x1B[35m";
-pub static RED: &str = "\x1B[31m";
-pub static RESET: &str = "\x1B[0m";
+pub const BLACK: &str = "\x1B[30m";
+pub const CLEAR_HOME: &str = "\x1B[2J\x1B[H"; // Both clears the terminal and returns cursor to top left.
+pub const GREEN: &str = "\x1B[92m";
+pub const GREY: &str = "\x1B[90m";
+pub const MAGENTA: &str = "\x1B[35m";
+pub const RED: &str = "\x1B[31m";
+pub const RESET: &str = "\x1B[0m";
