@@ -487,17 +487,7 @@ Edit meta: Gem [{RED}C{RESET}]ount | Gem score [{RED}B{RESET}]onus
             Key::Char('s' | 'S') => {
                 println!(
                     "{CLEAR_HOME}{RED}Solving the board, please stand by...{RESET}
-{}
-(Usually it doesn't take more than 10 seconds)
-",
-                    [
-                        "I promise, I'm smarter than I look... probably.",
-                        "Did someone say bruteforce?",
-                        "Finding words you didn't know existed...",
-                        "Mining cr- I mean, solving the board...",
-                        "Even Chrome was scared of that RAM usage.",
-                        "Please don't crash, please don't crash!"
-                    ][random::Source::read_u64(&mut get_random()) as usize % 6]
+(Usually it doesn't take more than 10 seconds)"
                 );
                 self.top_moves.clear();
                 let clock = std::time::Instant::now();
