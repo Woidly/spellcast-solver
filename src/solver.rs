@@ -390,10 +390,6 @@ fn new_solver(
                     new_solver(board, tmp_sequence, tmp_word, swaps, words);
                 }
             }
-        } else {
-            // This is dead branch, no reason to continue search.
-            // It shouldn't happen though, as prefix system will not let call new_solver with dead branch.
-            return;
         }
     }
 }
