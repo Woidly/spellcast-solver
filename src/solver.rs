@@ -25,6 +25,45 @@ fn get_letter_points(letter: char) -> u8 {
     }
 }
 
+/// Wrapper for Vec<Word> that keeps only self.limit highest value items and is always sorted.
+pub struct SortedWordVec {
+    inner: Vec<Word>,
+    limit: usize,
+}
+
+impl SortedWordVec {
+    pub fn new(limit: usize) -> SortedWordVec {
+        SortedWordVec {
+            inner: Vec::with_capacity(limit + 1), // Add 1 because it temporary exceeds limit by 1 inside self.push.
+            limit,
+        }
+    }
+
+    /// Inserts value into inner Vec into position determined by binary search.
+    /// If it becomes longer than self.limit, last item (with smallest value) is popped.
+    /// After function returns, self.inner is guaranteed to be sorted and <= 100 in length.
+    pub fn push(&mut self, value: Word) {
+        let mut l = 0;
+        let mut r = self.inner.len();
+        let mut m;
+        while l < r {
+            m = (l + r) / 2;
+            if self.inner[m].score > value.score {
+                l = m + 1;
+            } else if self.inner[m].score == value.score {
+                l = m;
+                break;
+            } else {
+                r = m;
+            }
+        }
+        self.inner.insert(l, value);
+        if self.inner.len() > self.limit {
+            self.inner.pop();
+        }
+    }
+}
+
 pub struct Tile {
     pub letter: char,
     pub letter_multiplier: u8,
@@ -181,7 +220,7 @@ impl Board {
     // FIXME: Find a better solution for multi-threading.
     pub fn solve(self, swaps: u8, num_threads: u8) -> (Vec<Word>, Self) {
         let mut calls = vec![];
-        let mut words = vec![];
+        let mut words = SortedWordVec::new(256);
         let mut index = -1;
         for tile in &self.tiles {
             index += 1;
@@ -204,9 +243,9 @@ impl Board {
         }
         if num_threads <= 1 {
             for call in calls {
-                words.extend(new_solver(&self, call.0, call.1, call.2));
+                new_solver(&self, call.0, call.1, call.2, &mut words);
             }
-            return (words, self);
+            return (words.inner, self);
         } else {
             // Let's hope bad stuff doesn't happen because of unsafe.
             // I mean, all threads are guaranteed to finish at the point of getting back self from Box.
@@ -221,20 +260,22 @@ impl Board {
                         .drain(..chunk_size.min(calls.len()))
                         .collect::<Vec<_>>(); // Bit hackish, but at least it doesn't do cloning.
                     threads.push(std::thread::spawn(|| {
-                        let mut thread_words = vec![];
+                        let mut thread_words = SortedWordVec::new(256);
                         for call in chunk {
-                            thread_words.extend(new_solver(board_ref, call.0, call.1, call.2));
+                            new_solver(board_ref, call.0, call.1, call.2, &mut thread_words);
                         }
                         thread_words
                     }))
                 }
                 for thread in threads {
                     if let Ok(thread_words) = thread.join() {
-                        words.extend(thread_words);
+                        for word in thread_words.inner {
+                            words.push(word);
+                        }
                     }
                 }
             }
-            return (words, unsafe { *Box::from_raw(board_ptr) });
+            return (words.inner, unsafe { *Box::from_raw(board_ptr) });
         }
     }
 }
@@ -312,18 +353,24 @@ impl Word {
 /// Initial calls to this function are from Board::solve and contain only one move.
 /// Then it just calls itself recursively with longer and longer move sequences until word is found or branch is cut.
 /// The further down, the faster it becomes! For example, "e" can be followed by 24 different letters, but "ea" - only by 6.
-fn new_solver(board: &Board, init_sequence: Vec<Move>, word: String, swaps: u8) -> Vec<Word> {
+fn new_solver(
+    board: &Board,
+    init_sequence: Vec<Move>,
+    word: String,
+    swaps: u8,
+    words: &mut SortedWordVec,
+) {
     let dictionary = DICTIONARY_CELL.get().unwrap();
-    let mut words = vec![];
     if let Some(last_move) = init_sequence.last() {
         let index = last_move.index();
         let old_moves: Vec<i8> = (&init_sequence).into_iter().map(|m| m.index()).collect();
+        // TODO: Maybe store whether next letter is a prefix, word or both prefix and word in next_letters. It will help to avoid this dictionary lookup.
         if let Some(result) = dictionary.get(&word.as_str()) {
             let real_next_letters: &Vec<char>;
             match result {
                 LookupResult::Word => {
                     words.push(Word::new(init_sequence, board, word));
-                    return words;
+                    return;
                 }
                 LookupResult::Both { next_letters } => {
                     // FIXME: Maybe it's possible to avoid cloning? It isn't really significant, but would be nice to get rid of it.
@@ -365,7 +412,7 @@ fn new_solver(board: &Board, init_sequence: Vec<Move>, word: String, swaps: u8) 
                                 index: ni,
                                 new_letter: *letter,
                             });
-                            words.extend(new_solver(board, tmp_sequence, tmp_word, swaps - 1));
+                            new_solver(board, tmp_sequence, tmp_word, swaps - 1, words);
                         }
                     }
                     if !original_letter_match {
@@ -375,13 +422,13 @@ fn new_solver(board: &Board, init_sequence: Vec<Move>, word: String, swaps: u8) 
                     tmp_word.push(tile.letter);
                     let mut tmp_sequence = (&init_sequence).clone();
                     tmp_sequence.push(Move::Normal { index: ni });
-                    words.extend(new_solver(board, tmp_sequence, tmp_word, swaps));
+                    new_solver(board, tmp_sequence, tmp_word, swaps, words);
                 }
             }
         } else {
             // This is dead branch, no reason to continue search.
-            return words;
+            // It shouldn't happen though, as prefix system will not let call new_solver with dead branch.
+            return;
         }
     }
-    words
 }
