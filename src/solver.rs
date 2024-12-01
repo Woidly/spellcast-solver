@@ -1,5 +1,3 @@
-use random::Source as _;
-
 use crate::{
     dictionary::{LookupResult, DICTIONARY_CELL},
     utils::*,
@@ -179,39 +177,6 @@ impl std::str::FromStr for Board {
 }
 
 impl Board {
-    /// Generates a random board for use in benchmark.
-    pub fn random(
-        rng: &mut random::Default,
-        do_gems: bool,
-        do_double_letter: bool,
-        do_double_word: bool,
-    ) -> Board {
-        let mut tiles =
-            std::array::from_fn(|_| Tile::empty(LETTERS[(rng.read_f64() * 26.) as usize]));
-        if do_gems {
-            let mut indexes = vec![];
-            while indexes.len() < 10 {
-                let index = rng.read_u64() as usize % 25;
-                if !indexes.contains(&index) {
-                    indexes.push(index);
-                }
-            }
-            for index in indexes {
-                tiles[index].gem = true;
-            }
-        }
-        if do_double_letter {
-            tiles[rng.read_u64() as usize % 25].letter_multiplier = 2;
-        }
-        if do_double_word {
-            tiles[rng.read_u64() as usize % 25].word_multiplier = 2;
-        }
-        Board {
-            tiles,
-            gem_bonus: 0,
-        }
-    }
-
     /// Consumes the board, solves it, and returns it back with solutions.
     /// Just a wrapper for actual solver that manages multi-threading.
     /// Why the consume stuff? Because borrow checker.
