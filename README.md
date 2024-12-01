@@ -35,13 +35,6 @@ A TUI solver.
 Not sure whether it's better than CLI solver.
 You can learn more in [INTERACTIVE.md](INTERACTIVE.md)
 
-### Automatic solver (WIP)
-
-Weird framework for making automatic solver that can be actually useful in game.
-You input screenshot, it uses OCR provided by you to parse the board, it solves the board and gives bunch of commands that your script must turn into mouse movements.
-(Do not worry, it includes decent script examples.)
-It is WIP, check `automatic` branch for more details (eventually it'll be merged into `main`).
-
 ## How
 
 If you want to know details of how this thing works, I left plenty of comments in code.
