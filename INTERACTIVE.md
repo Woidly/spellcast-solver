@@ -36,6 +36,7 @@ Got it? Press **`S`** and let's continue!
 5 ? ? ? ? ?
 
 [Arrow keys] Move cursor | [A-Z] Change letter
+[#] Frozen tile
 [Ctrl+C/Ctrl+Z] Exit
 ```
 
@@ -52,6 +53,10 @@ On first start, the cursor (in actual terminal tile will be highlighted red) wil
 Pressing **`A`**-**`Z`** will change letter on the current tile and move cursor to the next ? (empty) tile.
 This will allow you to type the entire board (or fill empty spaces after move) by just pressing letter keys.
 But if there are no ? tiles, cursor will stay in place, making editing a complete board more predictable.
+
+Pressing **`#`** will do the same, but instead of changing tile's letter, it will set tile.frozen to true.
+As frozen tiles are completely ignored by solver, there is no need to fill out what letter is in this tile.
+Pressing **`A`**-**`Z`** on frozen tile will revert tile.frozen to false.
 
 In case of typo, you can use arrow keys to get back to edited tile and press letter key again (it will overwrite letter on tile).
 
@@ -129,9 +134,10 @@ Specifying gem tiles is completely optional, but it will allow you to prioritise
 It is pretty simple, you just press column and row keys of tile you want to pick (e.g. **`A`** and **`1`** for first tile).
 After both column and row have been chosen, new option appears - `[Enter] Done`.
 Pressing **`Enter`** does whatever action you've previously selected with chosen tile.
-Tip: you can see which exact action will be done in parenthesis after state (e.g. `State::PickTile(TL)` or `State::PickTile(TwoX)`)
-
 But if you changed your mind (or just did a typo), you can press **`Esc`** or **`Z`** to return to the [normal menu](#normal) as if nothing had happened.
+
+> [!TIP]
+> You can see which exact action will be done in parenthesis after state (e.g. `State::PickTile(TL)` or `State::PickTile(TwoX)`)
 
 ## Number picker
 
