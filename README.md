@@ -87,8 +87,6 @@ Each benchmark is run with 100 boards, so 25 for each swap count (0/1/2/3).
 > [!NOTE]  
 > Results related to my solver do not include time it takes to load a dictionary (~50ms).
 > The same applies to WintrCat's solver.
-> Also, results related to my solver do not include sorting time, which may be up to 3-4 seconds for 3 swaps (as there may be over 10 million possible moves).
-> I am currently working on reducing sorting time and RAM usage (which is on average 3GB for 3 swaps).
 
 > [!NOTE]  
 > Results related to my solver are from commit `b34bb07`.
