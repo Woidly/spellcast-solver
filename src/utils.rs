@@ -22,3 +22,12 @@ pub const GREY: &str = "\x1B[90m";
 pub const MAGENTA: &str = "\x1B[35m";
 pub const RED: &str = "\x1B[31m";
 pub const RESET: &str = "\x1B[0m";
+
+/// Maximum number of solutions to keep in memory.
+/// Smaller numbers mean less RAM usage.
+/// Do not set it too low to keep words diverse (as it may include many different copies of same word).
+/// You can learn more in [crate::solver::SortedWordVec].
+///
+/// Note: each thread gets its own SortedWordVec instance, so there are actually MAX_SOLUTIONS*threads solutions in RAM in most cases.
+/// 256 seems good enough, as even with 12 threads RAM usage stays below 100 MB.
+pub const MAX_SOLUTIONS: usize = 256;

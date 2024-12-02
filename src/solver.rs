@@ -23,22 +23,20 @@ fn get_letter_points(letter: char) -> u8 {
     }
 }
 
-/// Wrapper for Vec<Word> that keeps only self.limit highest value items and is always sorted.
+/// Wrapper for Vec<Word> that keeps only [crate::utils::MAX_SOLUTIONS] highest value items and is always sorted.
 pub struct SortedWordVec {
     inner: Vec<Word>,
-    limit: usize,
 }
 
 impl SortedWordVec {
-    pub fn new(limit: usize) -> SortedWordVec {
+    pub fn new() -> SortedWordVec {
         SortedWordVec {
-            inner: Vec::with_capacity(limit + 1), // Add 1 because it temporary exceeds limit by 1 inside self.push.
-            limit,
+            inner: Vec::with_capacity(MAX_SOLUTIONS + 1), // Add 1 because it temporary exceeds limit by 1 inside self.push.
         }
     }
 
     /// Inserts value into inner Vec into position determined by binary search.
-    /// If it becomes longer than self.limit, last item (with smallest value) is popped.
+    /// If it becomes longer than MAX_SOLUTIONS, last item (with smallest value) is popped.
     /// After function returns, self.inner is guaranteed to be sorted and <= 100 in length.
     pub fn push(&mut self, value: Word) {
         let mut l = 0;
@@ -56,7 +54,7 @@ impl SortedWordVec {
             }
         }
         self.inner.insert(l, value);
-        if self.inner.len() > self.limit {
+        if self.inner.len() > MAX_SOLUTIONS {
             self.inner.pop();
         }
     }
@@ -185,7 +183,7 @@ impl Board {
     // FIXME: Find a better solution for multi-threading.
     pub fn solve(self, swaps: u8, num_threads: u8) -> (Vec<Word>, Self) {
         let mut calls = vec![];
-        let mut words = SortedWordVec::new(256);
+        let mut words = SortedWordVec::new();
         let mut index = -1;
         for tile in &self.tiles {
             index += 1;
@@ -225,7 +223,7 @@ impl Board {
                         .drain(..chunk_size.min(calls.len()))
                         .collect::<Vec<_>>(); // Bit hackish, but at least it doesn't do cloning.
                     threads.push(std::thread::spawn(|| {
-                        let mut thread_words = SortedWordVec::new(256);
+                        let mut thread_words = SortedWordVec::new();
                         for call in chunk {
                             new_solver(board_ref, call.0, call.1, call.2, &mut thread_words);
                         }
