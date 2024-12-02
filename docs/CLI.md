@@ -55,6 +55,7 @@ It takes a certain board position and solves it.
 - `-b`/`--board` - board string (defaults to reading `board.txt`)
 - `-c`/`--move-count` - number of top moves to show (defaults to `5`)
 - `-f`/`--format` - output format (defaults to `simple`). Allowed values are:
+    - `json` - prints list of solutions as JSON. The data format is as follows `{elapsed: number, solutions: [{gems: number, moves: [{swap: boolean, index: number, new_letter?: string}], score: number, sorting_score: number, swap_count: number, word: string}]}` (`new_letter` is specified only if `"swap": true`)
     - `simple` - prints list of words with their scores. If letter is swapped, it is coloured red. After each word there is list of swap moves, e.g. `1. urbanize (+64) / g -> b @ B1`
     - `table` - prints board representation for each word that shows order of moves (similar to TUI, check out [INTERACTIVE.md#Move](INTERACTIVE.md#move) to see how it looks)
 - `-g`/`--gem-value` - value added to tiles with gems to prioritise them (defaults to `0`, e.g. you can skip adding `!` because it does nothing)
