@@ -54,8 +54,10 @@ It takes a certain board position and solves it.
 
 - `-b`/`--board` - board string (defaults to reading `board.txt`)
 - `-c`/`--move-count` - number of top moves to show (defaults to `5`)
+- `-f`/`--format` - output format (defaults to `simple`). Allowed values are:
+    - `simple` - prints list of words with their scores. If letter is swapped, it is coloured red. After each word there is list of swap moves, e.g. `1. urbanize (+64) / g -> b @ B1`
+    - `table` - prints board representation for each word that shows order of moves (similar to TUI, check out [INTERACTIVE.md#Move](INTERACTIVE.md#move) to see how it looks)
 - `-g`/`--gem-value` - value added to tiles with gems to prioritise them (defaults to `0`, e.g. you can skip adding `!` because it does nothing)
-- `-p`/`--pretty-print` - whether to pretty print moves (print entire board with tiles highlighted instead of just printing text instructions; terminal with minimal colour support is recommended) (it's a flag, defaults to `false` if not specified)
 - `-s`/`--swap-count` - number of swaps to consider (each one costs 3 gems for you) (defaults to `0`)
 
 #### Board format
