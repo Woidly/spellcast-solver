@@ -53,3 +53,8 @@ Each benchmark is run with 100 boards, so 25 for each swap count (0/1/2/3).
 > Results related to my solver are from commit `b34bb07`.
 > I will update results only when making commits related to performance.
 > As for WintrCat's solver, current results are from pre-multiprocessing version of repository.
+
+> [!NOTE]  
+> Unlike original, my benchmarks only measure speed.
+> Since the game is random, game-related metrics aren't meaningful in any way.
+> The solver is guaranteed to find the optimal solution for any given board state.
