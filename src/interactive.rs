@@ -493,10 +493,9 @@ Edit meta: Gem [{RED}C{RESET}]ount | Gem score [{RED}B{RESET}]onus
                 let clock = std::time::Instant::now();
                 // Making one little temporary value is worth it, threads have so much more performance benefit.
                 let board = std::mem::take(&mut self.board);
-                let (mut words, board) = board.solve(self.gems / 3, self.num_threads);
+                let (words, board) = board.solve(self.gems / 3, self.num_threads);
                 self.board = board;
                 self.elapsed = format!("{:.2}ms", clock.elapsed().as_secs_f64() * 1000.);
-                words.sort_by_key(|x| -(x.score as i32));
                 let mut existing_words = vec![];
                 let mut counter = 0;
                 for word in words {

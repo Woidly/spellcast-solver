@@ -27,7 +27,6 @@ pub fn entry(args: SolverSubCommand, num_threads: u8) {
                 words.len(),
                 clock.elapsed().as_secs_f64() * 1000.
             );
-            words.sort_by_key(|x| -(x.score as i32));
             let mut existing_words = vec![];
             let mut counter = 0;
             let mut new_words = vec![];
