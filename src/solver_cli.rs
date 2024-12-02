@@ -1,5 +1,5 @@
 use crate::{
-    commandline::SolverSubCommand,
+    commandline::{OutputFormat, SolverSubCommand},
     dictionary::DICTIONARY_CELL,
     quit,
     solver::{Board, Move},
@@ -58,55 +58,60 @@ pub fn entry(args: SolverSubCommand, num_threads: u8) {
                         _ => (),
                     }
                 }
-                if args.pretty_print {
-                    let mut tiles: [Option<(u8, &Move)>; 25] = std::array::from_fn(|_| None);
-                    let mut move_counter: u8 = 0;
-                    for m in &word.moves {
-                        tiles[m.index() as usize] = Some((move_counter, m));
-                        move_counter += 1;
+                match args.format {
+                    OutputFormat::Simple => {
+                        println!(
+                            "{}. {} (+{}) / {}",
+                            counter,
+                            word.formatted(&board),
+                            word.score,
+                            swaps.join("; ")
+                        )
                     }
-                    let mut buf = String::from("# ");
-                    for (letter, _) in BOARD_COLUMNS {
-                        buf = buf + letter + " ";
-                    }
-                    buf += &format!(" {}\n", word.formatted(&board));
-                    for row in 0..5 {
-                        buf += &format!("{} ", row + 1);
-                        for index in (row * 5)..(row * 5 + 5) {
-                            if let Some((step, m)) = tiles[index] {
-                                let converted_step;
-                                if step < 10 {
-                                    converted_step = step.to_string();
+                    OutputFormat::Table => {
+                        let mut tiles: [Option<(u8, &Move)>; 25] = std::array::from_fn(|_| None);
+                        let mut move_counter: u8 = 0;
+                        for m in &word.moves {
+                            tiles[m.index() as usize] = Some((move_counter, m));
+                            move_counter += 1;
+                        }
+                        let mut buf = String::from("# ");
+                        for (letter, _) in BOARD_COLUMNS {
+                            buf = buf + letter + " ";
+                        }
+                        buf += &format!(" {}\n", word.formatted(&board));
+                        for row in 0..5 {
+                            buf += &format!("{} ", row + 1);
+                            for index in (row * 5)..(row * 5 + 5) {
+                                if let Some((step, m)) = tiles[index] {
+                                    let converted_step;
+                                    if step < 10 {
+                                        converted_step = step.to_string();
+                                    } else {
+                                        converted_step =
+                                            (('a' as u8 + step - 10) as char).to_string();
+                                    }
+                                    let letter = m.letter(&board);
+                                    if let Move::Swap { .. } = m {
+                                        buf +=
+                                            &format!("{RED}{letter}{GREY}{converted_step}{RESET}")
+                                    } else {
+                                        buf += &format!("{letter}{GREY}{converted_step}{RESET}")
+                                    }
                                 } else {
-                                    converted_step = (('a' as u8 + step - 10) as char).to_string();
+                                    buf += &format!("{BLACK}* {RESET}");
                                 }
-                                let letter = m.letter(&board);
-                                if let Move::Swap { .. } = m {
-                                    buf += &format!("{RED}{letter}{GREY}{converted_step}{RESET}")
-                                } else {
-                                    buf += &format!("{letter}{GREY}{converted_step}{RESET}")
-                                }
+                            }
+                            if row == 0 {
+                                buf += &format!(" +{} points\n", word.score);
+                            } else if row - 1 < swaps.len() {
+                                buf += &format!(" {}\n", swaps[row - 1 as usize]);
                             } else {
-                                buf += &format!("{BLACK}* {RESET}");
+                                buf += "\n";
                             }
                         }
-                        if row == 0 {
-                            buf += &format!(" +{} points\n", word.score);
-                        } else if row - 1 < swaps.len() {
-                            buf += &format!(" {}\n", swaps[row - 1 as usize]);
-                        } else {
-                            buf += "\n";
-                        }
+                        println!("=========[{counter}]=========\n{buf}");
                     }
-                    println!("=========[{counter}]=========\n{buf}");
-                } else {
-                    println!(
-                        "{}. {} (+{}) / {}",
-                        counter,
-                        word.formatted(&board),
-                        word.score,
-                        swaps.join("; ")
-                    )
                 }
                 counter -= 1;
             }

@@ -1,4 +1,4 @@
-use argh::FromArgs;
+use argh::{FromArgValue, FromArgs};
 
 #[derive(FromArgs, Debug)]
 /// An Spellcast solver.
@@ -56,13 +56,18 @@ pub struct SolverSubCommand {
     pub move_count: u8,
     #[argh(
         option,
+        description = "output format (def=simple)",
+        short = 'f',
+        default = "OutputFormat::Simple"
+    )]
+    pub format: OutputFormat,
+    #[argh(
+        option,
         description = "value added to tiles with gems (def=0)",
         short = 'g',
         default = "0"
     )]
     pub gem_value: u8,
-    #[argh(switch, description = "pretty-print moves", short = 'p')]
-    pub pretty_print: bool,
     #[argh(
         option,
         description = "number of swaps to consider (def=0)",
@@ -70,6 +75,22 @@ pub struct SolverSubCommand {
         default = "0"
     )]
     pub swap_count: u8,
+}
+
+#[derive(Debug)]
+pub enum OutputFormat {
+    Simple,
+    Table,
+}
+
+impl FromArgValue for OutputFormat {
+    fn from_arg_value(value: &str) -> Result<Self, String> {
+        Ok(match value {
+            "simple" => Self::Simple,
+            "table" => Self::Table,
+            _ => return Err("only allowed values are simple/table".into()),
+        })
+    }
 }
 
 pub fn parse() -> Args {
