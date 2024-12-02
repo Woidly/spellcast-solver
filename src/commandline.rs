@@ -43,11 +43,7 @@ pub struct BenchmarkSubCommand {}
 pub struct InteractiveSubCommand {}
 
 #[derive(FromArgs, Debug)]
-#[argh(
-    subcommand,
-    name = "solver",
-    description = "run the old no-state solver"
-)]
+#[argh(subcommand, name = "solver", description = "run the solver CLI")]
 pub struct SolverSubCommand {
     #[argh(option, description = "board string (def=read board.txt)", short = 'b')]
     pub board: Option<String>,

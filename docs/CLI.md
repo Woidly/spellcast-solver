@@ -15,7 +15,7 @@ Options:
 Commands:
   benchmark         run the benchmark
   interactive       run the interactive solver
-  solver            run the old no-state solver
+  solver            run the solver CLI
 ```
 
 ## Arguments
@@ -47,7 +47,8 @@ You can learn more about TUI itself in [docs/INTERACTIVE.md](docs/INTERACTIVE.md
 
 ### `solver`
 
-It's basically what you expected from original project - a simple solver that takes certain board position and gives you best words.
+A simple CLI that allows to access solver.
+It takes a certain board position and solves it.
 
 #### Arguments
 
