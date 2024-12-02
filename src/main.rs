@@ -1,5 +1,10 @@
 mod commandline;
 mod dictionary;
+#[cfg(feature = "interactive")]
+#[path = "interactive.rs"]
+mod interactive;
+#[cfg(not(feature = "interactive"))]
+#[path = "interactive_stub.rs"]
 mod interactive;
 mod oldsolver;
 mod solver;
