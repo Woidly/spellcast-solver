@@ -44,9 +44,9 @@ impl SortedWordVec {
         let mut m;
         while l < r {
             m = (l + r) / 2;
-            if self.inner[m].score > value.score {
+            if self.inner[m].sorting_score > value.sorting_score {
                 l = m + 1;
-            } else if self.inner[m].score == value.score {
+            } else if self.inner[m].sorting_score == value.sorting_score {
                 l = m;
                 break;
             } else {
@@ -249,6 +249,7 @@ pub struct Word {
     pub gems: u8,
     pub moves: Vec<Move>,
     pub score: u16, // Using u16 for score just in case of some miracle overflow.
+    pub sorting_score: u16,
     pub swap_count: u8,
     pub word: String,
 }
@@ -266,7 +267,6 @@ impl Word {
                     score += (get_letter_points(tile.letter) * tile.letter_multiplier) as u16;
                     word_multiplier = word_multiplier.max(tile.word_multiplier as u16);
                     if tile.gem {
-                        score += board.gem_bonus;
                         gems += 1;
                     }
                 }
@@ -275,7 +275,6 @@ impl Word {
                     score += (get_letter_points(*new_letter) * tile.letter_multiplier) as u16;
                     word_multiplier = word_multiplier.max(tile.word_multiplier as u16);
                     if tile.gem {
-                        score += board.gem_bonus;
                         gems += 1;
                     }
                     swap_count += 1;
@@ -290,6 +289,7 @@ impl Word {
             gems,
             moves,
             score,
+            sorting_score: score + gems as u16 * board.gem_bonus,
             swap_count,
             word,
         }
