@@ -1,5 +1,8 @@
 # Interactive solver guide
 
+> [!NOTE]  
+> It requires `interactive` feature to work (e.g. you need to use `-F interactive` or `--features interactive` in Cargo commands).
+
 ## Welcome screen
 
 When starting the interactive folder, you'll see something like this:

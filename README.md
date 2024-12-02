@@ -31,6 +31,9 @@ Slightly better version of WintrCat's project.
 
 ### Interactive solver ([`src/interactive.rs`](src/interactive.rs))
 
+> [!NOTE]  
+> It requires `interactive` feature to work (e.g. you need to use `-F interactive` or `--features interactive` in Cargo commands).
+
 A TUI solver.
 Not sure whether it's better than CLI solver.
 You can learn more in [INTERACTIVE.md](INTERACTIVE.md)
