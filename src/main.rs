@@ -6,8 +6,8 @@ mod interactive;
 #[cfg(not(feature = "interactive"))]
 #[path = "interactive_stub.rs"]
 mod interactive;
-mod oldsolver;
 mod solver;
+mod solver_cli;
 mod utils;
 
 use commandline::SubCommand;
@@ -20,6 +20,6 @@ fn main() {
     match args.subcommand {
         SubCommand::Benchmark(_) => quit!("Benchmark isn't implemented yet"),
         SubCommand::Interactive(sub) => interactive::entry(sub, args.threads),
-        SubCommand::Solver(sub) => oldsolver::entry(sub, args.threads),
+        SubCommand::Solver(sub) => solver_cli::entry(sub, args.threads),
     }
 }
