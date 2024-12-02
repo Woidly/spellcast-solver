@@ -1,5 +1,10 @@
 # spellcast-solver
 
+> [!WARNING]  
+> You are on the `automatic-2.0` branch.
+> It is WIP, so expect potential bugs and unfinished features.
+> This warning will be removed once the branch is merged into `main`.
+
 It's a... Spellcast solver... isn't the name obvious?
 
 This project is inspired by WintrCat's [Spellcast solver](https://github.com/WintrCat/spellcastsolver) (you can check out his videos on original solver - [[1]](https://youtu.be/hYoojWO9hh8), [[2]](https://youtu.be/QvJATba04u8)). Though, mine solver is **more than 10x faster** than original because it is written in Rust and has several new optimizations.
