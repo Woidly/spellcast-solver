@@ -5,7 +5,7 @@ By running help, you will get the following message:
 ```
 Usage: spellcast-solver [-d <dictionary>] [-t <threads>] <command> [<args>]
 
-An Spellcast solver. README.md has more detailed info on arguments.
+An Spellcast solver. docs/CLI.md has more detailed info on arguments.
 
 Options:
   -d, --dictionary  dictionary file
@@ -43,7 +43,7 @@ Therefore, while using multiple threads improves performance a lot, you shouldn'
 
 An interactive solver that is good enough to actually use it in game.
 No specific command-line arguments are required (except for dictionary and number of threads, these are program-wide); everything is configured in TUI.
-You can learn more about TUI itself in [INTERACTIVE.md](INTERACTIVE.md)
+You can learn more about TUI itself in [docs/INTERACTIVE.md](docs/INTERACTIVE.md)
 
 ### `solver`
 

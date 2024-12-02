@@ -36,7 +36,7 @@ Slightly better version of WintrCat's project.
 
 A TUI solver.
 Not sure whether it's better than CLI solver.
-You can learn more in [INTERACTIVE.md](INTERACTIVE.md)
+You can learn more in [docs/INTERACTIVE.md](docs/INTERACTIVE.md)
 
 ## How
 
@@ -56,7 +56,7 @@ My code is much simpler than the original, if I do say so myself.
 This tool is for terminal (no GUI).
 Everything can be configured via command-line arguments (except for interactive mode).
 Basic 16-colour support in terminal is recommended.
-You can learn more about command line arguments in [CLI.md](CLI.md).
+You can learn more about command line arguments in [docs/CLI.md](docs/CLI.md).
 
 ## Benchmarks
 

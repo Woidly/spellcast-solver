@@ -2,7 +2,7 @@ use argh::FromArgs;
 
 #[derive(FromArgs, Debug)]
 /// An Spellcast solver.
-/// README.md has more detailed info on arguments.
+/// docs/CLI.md has more detailed info on arguments.
 pub struct Args {
     #[argh(subcommand)]
     pub subcommand: SubCommand,

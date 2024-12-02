@@ -13,7 +13,7 @@ The superior Discord Spellcast solver - now in Rust!
 https://github.com/Woidly/spellcast-solver
 
 Welcome to interactive mode!
-You can learn more about it from INTERACTIVE.md.
+You can learn more about it from docs/INTERACTIVE.md.
 Terminal size of at least 14x52 is required.
 Basic 16-colour support is recommended.
 
