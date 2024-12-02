@@ -79,6 +79,7 @@ pub struct SolverSubCommand {
 
 #[derive(Debug)]
 pub enum OutputFormat {
+    JSON,
     Simple,
     Table,
 }
@@ -86,9 +87,10 @@ pub enum OutputFormat {
 impl FromArgValue for OutputFormat {
     fn from_arg_value(value: &str) -> Result<Self, String> {
         Ok(match value {
+            "json" => Self::JSON,
             "simple" => Self::Simple,
             "table" => Self::Table,
-            _ => return Err("only allowed values are simple/table".into()),
+            _ => return Err("only allowed values are json/simple/table".into()),
         })
     }
 }
