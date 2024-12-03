@@ -1,4 +1,4 @@
-import { hookGame } from "./lib/play";
+import { hookGame } from "./lib/gameplay";
 
 (function () {
   "use strict";

@@ -7,7 +7,7 @@ async function play(game: Game) {
   let gem_value = 0; // TODO: Somehow implement gem management.
   let results;
   try {
-    results = solve(board, swaps, gem_value);
+    results = await solve(board, swaps, gem_value);
   } catch (e) {
     // TODO: Implement error handling, probably print errors to UI, as console.log/warn/error/debug/etc is patched by Discord.
     throw e;
