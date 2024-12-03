@@ -17,7 +17,13 @@ async function play(game: Game) {
 }
 
 function hookCallback(this: Game, isMyTurn: boolean) {
-  Object.defineProperty(this, "isMyTurn", { value: isMyTurn, configurable: true, set: hookCallback });
+  Object.defineProperty(this, "isMyTurn", {
+    get() {
+      return isMyTurn;
+    },
+    configurable: true,
+    set: hookCallback,
+  });
   if (isMyTurn) {
     setTimeout(() => play(this), 1);
   }
