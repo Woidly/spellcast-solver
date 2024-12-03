@@ -31,7 +31,7 @@ export type Sprite = {
   stage: Sprite;
 };
 
-export type Tile = Sprite & {
+export type TileSprite = Sprite & {
   letterData: TileData;
 };
 
@@ -47,16 +47,13 @@ export type TilePos = {
  * Just tile data and word multiplier position.
  */
 export type BoardGrid = {
-  /**
-   * Mapping of tile index to tile data.
-   * Indexes are meaningless, just using it as list of letters.
-   */
+  /** Mapping of tile id to tile data */
   letters: Record<number, TileData>;
   /**
    * Position of tile with 2x multiplier.
-   * collumn and row both
+   * collumn and row both are 0-4 inclusive.
    */
-  wordMultiplierPosition: TilePos;
+  wordMultiplierPosition: TilePos | null;
 };
 
 /** Information about a tile */
@@ -70,4 +67,31 @@ export type TileData = TilePos & {
 
   // There's also getWordMultiplier(), but it seems to be broken.
   // Position of tile with word multiplier is stored in BoardState.
+};
+
+type BoardSprite = Sprite & {
+  boardData: BoardGrid;
+  /** Mapping of tile id to tile sprite */
+  letterPieces: Record<number, TileSprite>;
+};
+
+type Spellbook = Sprite & {
+  manaCounter: {
+    /** Number of gems player currently has, 0-10 inclusive */
+    manaCount: number;
+  };
+  powerupButtons: {
+    /** Swap button sprite */
+    CHANGE: Sprite;
+  };
+};
+
+/**
+ * The legendary `n`.
+ * This single object carries the whole thing.
+ */
+export type Game = Sprite & {
+  board: BoardSprite;
+  isMyTurn: boolean;
+  spellbook: Spellbook;
 };
