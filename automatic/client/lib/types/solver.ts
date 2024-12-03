@@ -1,3 +1,9 @@
+export type ServerResponse = {
+  ok: boolean;
+  data?: Results;
+  error?: string;
+};
+
 export type Results = {
   elapsed: number;
   solutions: Solution[];

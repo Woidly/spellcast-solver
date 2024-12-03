@@ -1,6 +1,6 @@
 import { httpRequest } from "./http";
 import type { BoardGrid, TileData } from "./types/extern";
-import type { Results } from "./types/solver";
+import type { Results, ServerResponse } from "./types/solver";
 
 const SERVER = "http://localhost:27974/";
 
@@ -42,5 +42,12 @@ export function solve(board: string, swaps: number, gem_value: number = 0): Prom
   url.searchParams.set("board", board);
   url.searchParams.set("swaps", swaps.toString());
   url.searchParams.set("gem_value", gem_value.toString());
-  return httpRequest(url.toString(), "POST").then((text) => JSON.parse(text) as Results);
+  return httpRequest(url.toString(), "POST").then((text) => {
+    let r = JSON.parse(text) as ServerResponse;
+    if (r.ok && r.data) {
+      return r.data;
+    } else {
+      throw new Error(r.error);
+    }
+  });
 }
