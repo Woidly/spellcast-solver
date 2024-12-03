@@ -27,7 +27,7 @@ export function stringifyRawBoard(raw: BoardGrid): string {
           if (!tile) {
             return ""; // Not going to happen, just added it to please TypeScript.
           }
-          stringifyRawTile(
+          return stringifyRawTile(
             tile,
             tile.collumn == raw.wordMultiplierPosition?.collumn && tile.row == raw.wordMultiplierPosition?.row
           );
