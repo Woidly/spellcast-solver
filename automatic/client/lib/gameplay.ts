@@ -2,6 +2,7 @@ import { solve, stringifyRawBoard } from "./solver";
 import type { Game } from "./types/extern";
 
 async function play(game: Game) {
+  if (Object.values(game.board.boardData.letters || []).length != 25) return;
   let board = stringifyRawBoard(game.board.boardData);
   let swaps = Math.floor(game.spellbook.manaCounter.manaCount / 3);
   let gem_value = 0; // TODO: Somehow implement gem management.
