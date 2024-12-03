@@ -53,6 +53,7 @@ console.log(`Running HTTP server on port ${PORT}`);
 Bun.serve({
   port: PORT,
   async fetch(request: Request): Promise<Response> {
+    console.log(request.method, request.url);
     if (request.method.toUpperCase() != "POST") {
       return new Response(
         "Server is up! To solve the board, make POST request with 'board', 'gem_value' and 'swaps' query params",
