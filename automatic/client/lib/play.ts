@@ -24,7 +24,7 @@ function hookCallback(this: Game, isMyTurn: boolean) {
     configurable: true,
     set: hookCallback,
   });
-  if (isMyTurn) {
+  if (isMyTurn && typeof this.spellbook !== "undefined") {
     setTimeout(() => play(this), 1);
   }
 }
