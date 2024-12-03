@@ -6,5 +6,8 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "build": "bun build client/index.ts --target=browser --banner \"$(cat client/meta.txt)\" --minify --minify-syntax --minify-whitespace --minify-identifiers --outfile=dist/spellcast.userscript.js"
   }
 }
