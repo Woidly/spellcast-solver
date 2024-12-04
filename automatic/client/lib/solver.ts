@@ -9,7 +9,8 @@ export function stringifyRawTile(raw: TileData, twox: boolean): string {
     raw.key +
     ({ 1: "", 2: "+", 3: "*" }[raw.getLetterMultiplier()] || "") +
     ({ 1: "", 2: "$", 3: "^" }[twox ? 2 : 1] || "") +
-    (raw.letter_mana > 0 ? "!" : "")
+    (raw.letter_mana > 0 ? "!" : "") +
+    (raw.block_letter ? "#" : "")
   );
 }
 

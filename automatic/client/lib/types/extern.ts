@@ -62,6 +62,8 @@ export type BoardGrid = {
 
 /** Information about a tile */
 export type TileData = TilePos & {
+  /** Whether the tile is frozen */
+  block_letter: boolean;
   /** Actual letter on the tile, uppercase */
   key: string;
   /** Amount of gems tile has, 0-1 inclusive */
