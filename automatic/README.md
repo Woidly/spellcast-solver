@@ -21,4 +21,15 @@ There's no reason to change it, but if you do, don't forget to also change it in
 
 A client that injects parts of it's code into the game, reads game state, uses the server to solve the board and makes the moves **completely automatically**.
 
+It is a userscript, so you'll need a userscript manager to run it.
+The only tested (and supported) one is [TamperMonkey](https://www.tampermonkey.net/), as script relies on it's implementation of `GM.xmlHttpRequest` to bypass the CSP.
+
+However, if `GM.xmlHttpRequest` is not found, it'll try to use the default `fetch`, so technically it can work from other userscript managers (or even console) if CSP is disabled (you only will need to allow to connect to localhost from `852509694341283871.discordsays.com`).
+You can learn more (or implement your own bypass) in [client/lib/http.ts](client/lib/http.ts).
+
+To build it, you can use `build` script (e.g. `bun run build`).
+Bun will compile all the necessary files, minify them, append userscript meta and write output to `dist/spellcast.userscript.js`.
+Note that build script relies on `cat` to read meta, though it isn't a big deal, as `cat` is available on almost every UNIX-based system.
+
 (WIP)
+(TODO: show the UI when UI is done)
