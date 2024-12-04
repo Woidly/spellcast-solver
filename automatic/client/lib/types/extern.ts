@@ -35,6 +35,10 @@ export type TileSprite = Sprite & {
   letterData: TileData;
 };
 
+export type SwapLetterButton = Sprite & {
+  config: { key: string };
+};
+
 export type TilePos = {
   /** Coulmn tile is located in, 0-4 inclusive (devs made a typo lol) */
   collumn: number;
