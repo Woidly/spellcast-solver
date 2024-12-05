@@ -81,7 +81,6 @@ const GAMEPLAY = new (class GlobalGameplay {
   }
 
   getBoard(): string | null {
-    console.error(Object.values(this.game.board.boardData.letters || []).length);
     if (Object.values(this.game.board.boardData.letters || []).length != 25) return null;
     return stringifyRawBoard(this.game.board.boardData);
   }
