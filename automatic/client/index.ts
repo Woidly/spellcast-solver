@@ -5,4 +5,5 @@ import { UI } from "./lib/ui";
   "use strict";
   hookGame();
   UI.showOverlay("UI is not implemented yet");
+  UI.log("Hello, world!");
 })();

@@ -53,3 +53,7 @@
   border: 2px solid black;
   cursor: move;
 }
+
+.WSClog span {
+  color: #0f0;
+}

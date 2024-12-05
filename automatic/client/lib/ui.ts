@@ -80,4 +80,16 @@ export const UI = new (class {
     this.overlayTitle.textContent = title;
     this.overlay.style.display = "block";
   }
+
+  print(prefix: string, className: string, message: string) {
+    let div = document.createElement("div");
+    div.className = className;
+    div.appendChild(document.createElement("span")).textContent = prefix;
+    div.appendChild(document.createTextNode(" " + message));
+    this.console.appendChild(div);
+  }
+
+  log(message: string) {
+    this.print("LOG", "WSClog", message);
+  }
 })();
