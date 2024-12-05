@@ -174,8 +174,13 @@ const GAMEPLAY = new (class GlobalGameplay {
     this.game = game;
     switch (this.game.currentGameState) {
       case 1:
+        UI.setMetadata({ board: "N/A" });
         return UI.showOverlay("In menus");
       case 2:
+        UI.setMetadata({
+          board: this.getBoard() || "N/A",
+          round: (this.game as any)?.contentRight?.children?.[0]?.roundCounter?.currentRound,
+        });
         if (isMyTurn) {
           this.play();
         } else {

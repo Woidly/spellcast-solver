@@ -87,10 +87,22 @@ export const UI = new (class {
     div.appendChild(document.createElement("span")).textContent = prefix;
     div.appendChild(document.createTextNode(" " + message));
     this.console.appendChild(div);
-    if (this.console.scrollHeight - this.console.scrollTop - this.console.clientHeight <= 30) this.console.scrollTop = this.console.scrollHeight;
+    if (this.console.scrollHeight - this.console.scrollTop - this.console.clientHeight <= 30)
+      this.console.scrollTop = this.console.scrollHeight;
   }
 
   log(message: string) {
     this.print("LOG", "WSClog", message);
+  }
+
+  setMetadata(metadata: Record<string, string>) {
+    let keys = Object.keys(metadata).toSorted();
+    this.meta.innerHTML = "";
+    for (let key of keys) {
+      let div = document.createElement("div");
+      div.appendChild(document.createElement("b")).textContent = key.charAt(0).toUpperCase() + key.slice(1) + ":";
+      div.appendChild(document.createTextNode(" " + metadata[key]));
+      this.meta.appendChild(div);
+    }
   }
 })();
