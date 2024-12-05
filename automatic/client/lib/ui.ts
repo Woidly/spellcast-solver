@@ -1,3 +1,6 @@
+// FIXME: This line makes Prettier think file has syntax errors, therefore skipping formatting.
+import style from "../style.css" with { type: "text" };
+
 function draggable(element: HTMLElement, handle: HTMLElement) {
   let oldx = 0;
   let oldy = 0;
@@ -38,67 +41,21 @@ export const UI = new (class {
   overlayTitle: HTMLSpanElement;
 
   constructor() {
+    document.body.appendChild(document.createElement("style")).textContent = style;
     let root = document.body.appendChild(document.createElement("div"));
-    Object.assign(root.style, {
-      zIndex: 100,
-      position: "absolute",
-      top: "50vh",
-      left: "vw",
-      height: "200px",
-      width: "300px",
-      backgroundColor: "rgba(35, 35, 35, 85%)",
-      transform: "translate(-50%, -50%)",
-      userSelect: "none",
-      color: "white",
-      fontSize: "11px",
-      padding: "5px",
-      border: "4px solid black",
-      display: "flex",
-      flexDirection: "column",
-    });
+    root.className = "WSroot";
     let meta = root.appendChild(document.createElement("div"));
     meta.innerText = "Metadata will be here";
     root.appendChild(document.createElement("hr")).style.width = "100%";
     let _console = root.appendChild(document.createElement("div"));
-    Object.assign(_console.style, {
-      fontFamily: "monospace",
-      flexGrow: 1,
-      overflowY: "scroll",
-      scrollbarColor: "white transparent",
-      scrollbarWidth: "thin",
-    });
+    _console.className = "WSconsole";
     let overlay = root.appendChild(document.createElement("div"));
-    Object.assign(overlay.style, {
-      zIndex: 101,
-      position: "absolute",
-      left: "50%",
-      top: "50%",
-      width: "100%",
-      height: "100%",
-      backgroundColor: "rgba(200, 200, 200, 85%)",
-      transform: "translate(-50%, -50%)",
-    });
+    overlay.className = "WSoverlay";
     let overlayTitle = overlay.appendChild(document.createElement("span"));
-    Object.assign(overlayTitle.style, {
-      // top: 50%; left: 50%; position: absolute; transform: translate(-50%, -50%); font-size: large; text-align: center;
-      position: "absolute",
-      left: "50%",
-      top: "50%",
-      transform: "translate(-50%, -50%)",
-      fontSize: "large",
-      textAlign: "center",
-    });
+    overlayTitle.className = "WSoverlaytitle";
     overlayTitle.textContent = "Loading...";
     let drag = root.appendChild(document.createElement("div"));
-    Object.assign(drag.style, {
-      zIndex: 102,
-      position: "absolute",
-      right: 0,
-      bottom: 0,
-      padding: "2px",
-      border: "2px solid black",
-      cursor: "move",
-    });
+    drag.className = "WSdrag";
     drag.textContent = "Drag to move";
     let oldpos = localStorage.getItem("WSoldpos");
     if (oldpos) {
