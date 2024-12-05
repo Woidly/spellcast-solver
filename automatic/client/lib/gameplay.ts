@@ -1,6 +1,7 @@
 import { down, moveTo, up } from "./mouse";
 import { solve, stringifyRawBoard } from "./solver";
 import type { Game, Sprite, SwapLetterButton, Vec2 } from "./types/extern";
+import { UI } from "./ui";
 
 /**
  * Traverses sprite's parents to determine it's position.
@@ -49,10 +50,11 @@ function waitForSprite(root: Sprite, predicate: (x: Sprite) => boolean): Promise
 }
 
 async function play(game: Game) {
-  if (Object.values(game.board.boardData.letters || []).length != 25) return;
+  if (Object.values(game.board.boardData.letters || []).length != 25) return UI.showOverlay("Board not found");
   let board = stringifyRawBoard(game.board.boardData);
   let swaps = Math.floor(game.spellbook.manaCounter.manaCount / 3);
   let gem_value = 0; // TODO: Somehow implement gem management.
+  UI.showOverlay("Solving board..."); // TODO: Add ability to interupt solver.
   let results;
   try {
     results = await solve(board, swaps, gem_value);
@@ -60,18 +62,20 @@ async function play(game: Game) {
     // TODO: Implement error handling, probably print errors to UI, as console.log/warn/error/debug/etc is patched by Discord.
     throw e;
   }
+  UI.hideOverlay();
   let best = results.solutions[0];
   if (!best) {
     return console.error("No solution found");
   }
   console.log(`${best.word} +${best.score}`);
-  // Wait for board scale animation to finish
+  // Wait for board scale animation to finish.
   // TODO: Maybe skip animation entirely, we literally can control the game.
   await new Promise((r) => setTimeout(r, 300));
   let canvas = document.querySelector("canvas#gameCanvas");
   if (!canvas) {
     return console.error("Failed to get the game canvas");
   }
+  UI.showOverlay("Swapping letters...");
   for (let move of best.moves) {
     if (move.swap) {
       let { x, y } = getSpriteCoords(game.spellbook.powerupButtons.CHANGE);
@@ -100,6 +104,7 @@ async function play(game: Game) {
       await new Promise((r) => setTimeout(r, 1500));
     }
   }
+  UI.showOverlay("Making move...");
   for (let _index in best.moves) {
     // Thanks javascript.
     let index = Number(_index);
@@ -118,6 +123,7 @@ async function play(game: Game) {
       up(canvas);
     }
   }
+  UI.showOverlay(`${best.word} +${best.score}`);
 }
 
 function hookCallback(this: Game, isMyTurn: boolean) {
@@ -128,8 +134,12 @@ function hookCallback(this: Game, isMyTurn: boolean) {
     configurable: true,
     set: hookCallback,
   });
-  if (isMyTurn && typeof this.spellbook !== "undefined") {
-    setTimeout(() => play(this), 1);
+  if (typeof this.spellbook !== "undefined") {
+    if (isMyTurn) {
+      setTimeout(() => play(this), 1);
+    } else {
+      UI.showOverlay("Not our turn");
+    }
   }
 }
 
