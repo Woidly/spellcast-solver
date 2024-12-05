@@ -172,10 +172,20 @@ const GAMEPLAY = new (class GlobalGameplay {
 
   handleHook(game: Game, isMyTurn: boolean) {
     this.game = game;
-    if (isMyTurn) {
-      this.play();
-    } else {
-      UI.showOverlay("Not our turn");
+    switch (this.game.currentGameState) {
+      case 1:
+        return UI.showOverlay("In menus");
+      case 2:
+        if (isMyTurn) {
+          this.play();
+        } else {
+          UI.showOverlay("Not our turn");
+        }
+        return;
+      case 3:
+        return UI.showOverlay("GG!");
+      default:
+        return UI.showOverlay("???");
     }
   }
 })();

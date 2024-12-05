@@ -98,6 +98,7 @@ type Spellbook = Sprite & {
  */
 export type Game = Sprite & {
   board: BoardSprite;
+  currentGameState: number;
   isMyTurn: boolean;
   spellbook: Spellbook;
 };
