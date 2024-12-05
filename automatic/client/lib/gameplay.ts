@@ -1,7 +1,9 @@
 import { down, moveTo, up } from "./mouse";
 import { solve, stringifyRawBoard } from "./solver";
 import type { Game, Sprite, SwapLetterButton, Vec2 } from "./types/extern";
+import type { Move } from "./types/solver";
 import { UI } from "./ui";
+import { sleep } from "./utils";
 
 /**
  * Traverses sprite's parents to determine it's position.
@@ -39,6 +41,7 @@ function waitForSprite(root: Sprite, predicate: (x: Sprite) => boolean): Promise
       if (result) return result;
     }
   }
+  // TODO: Make it interruptable. Maybe even implement some global cleanup hook so there aren't any dangling intervals.
   let interval = setInterval(() => {
     let found = recursion(root);
     if (found) {
@@ -49,82 +52,139 @@ function waitForSprite(root: Sprite, predicate: (x: Sprite) => boolean): Promise
   return promise;
 }
 
-async function play(game: Game) {
-  if (Object.values(game.board.boardData.letters || []).length != 25) return UI.showOverlay("Board not found");
-  let board = stringifyRawBoard(game.board.boardData);
-  let swaps = Math.floor(game.spellbook.manaCounter.manaCount / 3);
-  let gem_value = 0; // TODO: Somehow implement gem management.
-  UI.showOverlay("Solving board..."); // TODO: Add ability to interupt solver.
-  let results;
-  try {
-    results = await solve(board, swaps, gem_value);
-  } catch (e) {
-    // TODO: Implement error handling, probably print errors to UI, as console.log/warn/error/debug/etc is patched by Discord.
-    throw e;
-  }
-  UI.hideOverlay();
-  let best = results.solutions[0];
-  if (!best) {
-    return console.error("No solution found");
-  }
-  console.log(`${best.word} +${best.score}`);
-  // Wait for board scale animation to finish.
-  // TODO: Maybe skip animation entirely, we literally can control the game.
-  await new Promise((r) => setTimeout(r, 300));
-  let canvas = document.querySelector("canvas#gameCanvas");
-  if (!canvas) {
-    return console.error("Failed to get the game canvas");
-  }
-  UI.showOverlay("Swapping letters...");
-  for (let move of best.moves) {
-    if (move.swap) {
-      let { x, y } = getSpriteCoords(game.spellbook.powerupButtons.CHANGE);
-      moveTo(canvas, x, y);
-      down(canvas);
-      up(canvas);
-      let sprite = Object.values(game.board.letterPieces).find(
-        (x) => x.letterData.row * 5 + x.letterData.collumn == move.index
-      );
-      if (!sprite) {
-        return console.error(`Failed to get sprite for tile ${move.index}`);
-      }
-      ({ x, y } = getSpriteCoords(sprite));
-      await new Promise((r) => setTimeout(r, 100));
-      moveTo(canvas, x, y);
-      down(canvas);
-      up(canvas);
-      let letterButton = await waitForSprite(game.parent?.parent || game, (x) => {
-        return (x as SwapLetterButton)?.config?.key == move.new_letter?.toUpperCase();
-      });
-      ({ x, y } = getSpriteCoords(letterButton));
-      moveTo(canvas, x, y);
-      down(canvas);
-      up(canvas);
-      // Too fast. Too soon.
-      await new Promise((r) => setTimeout(r, 1500));
+function filterSwaps(moves: Move[]): [number, string][] {
+  let swaps: [number, string][] = [];
+  for (let move of moves) {
+    if (move.swap && move.new_letter) {
+      swaps.push([move.index, move.new_letter.toUpperCase()]);
     }
   }
-  UI.showOverlay("Making move...");
-  for (let _index in best.moves) {
-    // Thanks javascript.
-    let index = Number(_index);
-    let move = best.moves[index];
-    let sprite = Object.values(game.board.letterPieces).find(
-      (x) => x.letterData.row * 5 + x.letterData.collumn == move.index
-    );
-    if (!sprite) {
-      return console.error(`Failed to get sprite for tile ${move.index}`);
-    }
-    let { x, y } = getSpriteCoords(sprite);
-    moveTo(canvas, x, y);
-    if (index == 0) {
-      down(canvas);
-    } else if (index == best.moves.length - 1) {
-      up(canvas);
-    }
-  }
-  UI.showOverlay(`${best.word} +${best.score}`);
+  return swaps;
 }
+
+const GAMEPLAY = new (class GlobalGameplay {
+  game: Game;
+  canvas: HTMLCanvasElement;
+
+  constructor() {
+    // Just putting it here to please TypeScript.
+    // It won't cause any issues as any interactions with this.game are called after handleHook that sets up game properly.
+    this.game = {} as Game;
+    let canvas = document.querySelector("canvas#gameCanvas") as HTMLCanvasElement;
+    if (!canvas) {
+      // FIXME: More graceful shutdown, maybe let user retry it.
+      UI.showOverlay("Game canvas not found");
+      throw new Error("Game canvas not found");
+    }
+    this.canvas = canvas;
+    //
+  }
+
+  getBoard(): string | null {
+    console.error(Object.values(this.game.board.boardData.letters || []).length);
+    if (Object.values(this.game.board.boardData.letters || []).length != 25) return null;
+    return stringifyRawBoard(this.game.board.boardData);
+  }
+
+  getSwaps(): number {
+    // Using function instead of just having this expression as later we may want to not use all swaps to save them for later (gem management)
+    return Math.floor(this.game.spellbook.manaCounter.manaCount / 3);
+  }
+
+  getGemValue(): number {
+    return 0; // TODO
+  }
+
+  moveToSprite(sprite: Sprite) {
+    let { x, y } = getSpriteCoords(sprite);
+    moveTo(this.canvas, x, y);
+  }
+
+  clickSprite(sprite: Sprite) {
+    this.moveToSprite(sprite);
+    down(this.canvas);
+    up(this.canvas);
+  }
+
+  async getTile(index: number): Promise<Sprite> {
+    let tile = Object.values(this.game.board.letterPieces).find(
+      (x) => x.letterData.row * 5 + x.letterData.collumn == index
+    );
+    if (!tile) {
+      throw new Error(`Failed to get sprite for tile ${index}`);
+    }
+    return tile;
+  }
+
+  async makeSwap(index: number, letter: string) {
+    this.clickSprite(this.game.spellbook.powerupButtons.CHANGE);
+    await new Promise((r) => setTimeout(r, 100));
+    this.clickSprite(await this.getTile(index));
+    let parent = this.game.parent?.parent;
+    // It should never happen, so if it does, let's just throw the error.
+    if (!parent) throw new Error("Failed to get game.parent.parent");
+    let letterButton = await waitForSprite(parent, (x) => (x as SwapLetterButton)?.config?.key == letter);
+    this.clickSprite(letterButton);
+    // Too fast. Too soon.
+    await sleep(1500);
+  }
+
+  async play() {
+    let board;
+    if (!(board = this.getBoard())) return UI.showOverlay("Board not found!");
+    UI.showOverlay("Solving board...");
+    let results;
+    try {
+      // TODO: Make it interruptable.
+      results = await solve(board, this.getSwaps(), this.getGemValue());
+    } catch (e) {
+      console.log(e); // TODO: Show errors directly in the UI.
+      return UI.showOverlay("Solver error");
+    }
+
+    let best = results.solutions[0];
+    if (!best) {
+      return UI.showOverlay("No solution found");
+    }
+    // UI.log(`${best.word} +${best.score}`);
+
+    // Just in case board scale animation is still playing.
+    await sleep(150);
+    let swaps;
+    if ((swaps = filterSwaps(best.moves))) {
+      // UI.hideOverlay();
+      // UI.log("Swapping letter...")
+      UI.showOverlay("Swapping letters...");
+      for (let [index, letter] of swaps) {
+        await this.makeSwap(index, letter);
+      }
+      UI.hideOverlay();
+    }
+    UI.showOverlay("Making move...");
+    for (let _index in best.moves) {
+      // Thanks javascript.
+      let index = Number(_index);
+      let move = best.moves[index];
+      this.moveToSprite(await this.getTile(move.index));
+      if (index == 0) {
+        down(this.canvas);
+      } else if (index == best.moves.length - 1) {
+        up(this.canvas);
+      }
+    }
+    UI.hideOverlay();
+    // UI.log(`${best.word} +${best.score}`);
+  }
+
+  handleHook(game: Game, isMyTurn: boolean) {
+    this.game = game;
+    if (isMyTurn) {
+      this.play();
+    } else {
+      UI.showOverlay("Not our turn");
+    }
+  }
+})();
 
 function hookCallback(this: Game, isMyTurn: boolean) {
   Object.defineProperty(this, "isMyTurn", {
@@ -135,11 +195,14 @@ function hookCallback(this: Game, isMyTurn: boolean) {
     set: hookCallback,
   });
   if (typeof this.spellbook !== "undefined") {
-    if (isMyTurn) {
-      setTimeout(() => play(this), 1);
-    } else {
-      UI.showOverlay("Not our turn");
-    }
+    // FIXME: Do something about timeout.
+    // Initially it was added to avoid blocking setter (but later function became async and there's no more need for it).
+    // However, if we remove it, neither of two isMyTurn=true assigns would have a board in place.
+    // Setting it to 1ms seems to work, as first assign still has no board and second one has just enough time to have a board.
+    // However, it may cause issues because of lags.
+    // Probably smartest decision would be to make waitFor interval thingy, but then two calls will overlap and both have a board.
+    // I'll figure it out later.
+    setTimeout(() => GAMEPLAY.handleHook(this, isMyTurn), 1);
   }
 }
 
