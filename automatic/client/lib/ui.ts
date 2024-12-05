@@ -53,13 +53,19 @@ export const UI = new (class {
       fontSize: "11px",
       padding: "5px",
       border: "4px solid black",
+      display: "flex",
+      flexDirection: "column",
     });
     let meta = root.appendChild(document.createElement("div"));
     meta.innerText = "Metadata will be here";
-    root.appendChild(document.createElement("hr"));
+    root.appendChild(document.createElement("hr")).style.width = "100%";
     let _console = root.appendChild(document.createElement("div"));
     Object.assign(_console.style, {
       fontFamily: "monospace",
+      flexGrow: 1,
+      overflowY: "scroll",
+      scrollbarColor: "white transparent",
+      scrollbarWidth: "thin",
     });
     let overlay = root.appendChild(document.createElement("div"));
     Object.assign(overlay.style, {
