@@ -87,6 +87,7 @@ export const UI = new (class {
     div.appendChild(document.createElement("span")).textContent = prefix;
     div.appendChild(document.createTextNode(" " + message));
     this.console.appendChild(div);
+    if (this.console.scrollHeight - this.console.scrollTop - this.console.clientHeight <= 30) this.console.scrollTop = this.console.scrollHeight;
   }
 
   log(message: string) {
