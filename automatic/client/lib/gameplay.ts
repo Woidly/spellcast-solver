@@ -140,26 +140,23 @@ const GAMEPLAY = new (class GlobalGameplay {
       console.error(e); // TODO: Show errors directly in the UI.
       return UI.showOverlay("Solver error");
     }
-
+    UI.hideOverlay();
     let best = results.solutions[0];
     if (!best) {
       return UI.showOverlay("No solution found");
     }
-    // UI.log(`${best.word} +${best.score}`);
-
+    // TODO: Print swapped letters in different color, similar to how CLI does it.
+    UI.log(`${best.word} +${best.score}`);
     // Just in case board scale animation is still playing.
     await sleep(150);
     let swaps;
     if ((swaps = filterSwaps(best.moves))) {
-      // UI.hideOverlay();
-      // UI.log("Swapping letter...")
-      UI.showOverlay("Swapping letters...");
+      UI.log("Swapping letters...");
       for (let [index, letter] of swaps) {
         await this.makeSwap(index, letter);
       }
-      UI.hideOverlay();
     }
-    UI.showOverlay("Making move...");
+    UI.log("Making move...");
     for (let _index in best.moves) {
       // Thanks javascript.
       let index = Number(_index);
@@ -171,8 +168,6 @@ const GAMEPLAY = new (class GlobalGameplay {
         up(this.canvas);
       }
     }
-    UI.hideOverlay();
-    // UI.log(`${best.word} +${best.score}`);
   }
 
   handleHook(game: Game, isMyTurn: boolean) {
