@@ -137,7 +137,7 @@ const GAMEPLAY = new (class GlobalGameplay {
       // TODO: Make it interruptable.
       results = await solve(board, this.getSwaps(), this.getGemValue());
     } catch (e) {
-      console.log(e); // TODO: Show errors directly in the UI.
+      console.error(e); // TODO: Show errors directly in the UI.
       return UI.showOverlay("Solver error");
     }
 

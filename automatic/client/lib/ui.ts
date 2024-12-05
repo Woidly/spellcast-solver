@@ -29,7 +29,6 @@ function draggable(element: HTMLElement, handle: HTMLElement) {
     document.onmouseup = null;
     localStorage.setItem("WSoldpos", JSON.stringify([element.offsetLeft, element.offsetTop]));
   }
-  console.log(handle, "is now draggable");
   handle.onmousedown = onMouseDown;
 }
 
