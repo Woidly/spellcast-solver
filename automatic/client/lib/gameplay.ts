@@ -3,7 +3,7 @@ import { solve, stringifyRawBoard } from "./solver";
 import type { Game, Sprite, SwapLetterButton, Vec2 } from "./types/extern";
 import type { Move } from "./types/solver";
 import { UI } from "./ui";
-import { sleep } from "./utils";
+import { sleep, waitForValue } from "./utils";
 
 /**
  * Traverses sprite's parents to determine it's position.
@@ -30,9 +30,7 @@ function getSpriteCoords(sprite: Sprite): Vec2 {
  * @param predicate Predicate that checks whether sprite is one we're looking for
  * @returns Promise, that resolves with sprite when it's found
  */
-function waitForSprite(root: Sprite, predicate: (x: Sprite) => boolean): Promise<Sprite> {
-  let resolve: (value: Sprite) => void;
-  let promise: Promise<Sprite> = new Promise((_resolve) => (resolve = _resolve));
+function waitForSprite(root: Sprite, predicate: (x: Sprite) => boolean): [Promise<Sprite>, () => void] {
   function recursion(parent: Sprite, limit: number = 5): Sprite | void {
     if (limit <= 0) return;
     for (let child of parent.children) {
@@ -41,15 +39,7 @@ function waitForSprite(root: Sprite, predicate: (x: Sprite) => boolean): Promise
       if (result) return result;
     }
   }
-  // TODO: Make it interruptable. Maybe even implement some global cleanup hook so there aren't any dangling intervals.
-  let interval = setInterval(() => {
-    let found = recursion(root);
-    if (found) {
-      resolve(found);
-      clearInterval(interval);
-    }
-  }, 50);
-  return promise;
+  return waitForValue(() => recursion(root));
 }
 
 function filterSwaps(moves: Move[]): [number, string][] {
@@ -122,7 +112,8 @@ const GAMEPLAY = new (class GlobalGameplay {
     let parent = this.game.parent?.parent;
     // It should never happen, so if it does, let's just throw the error.
     if (!parent) throw new Error("Failed to get game.parent.parent");
-    let letterButton = await waitForSprite(parent, (x) => (x as SwapLetterButton)?.config?.key == letter);
+    // TODO: Make it interruptable. waitForSprite(...)[1] is a callback that can interrupt the interval and reject the promise.
+    let letterButton = await waitForSprite(parent, (x) => (x as SwapLetterButton)?.config?.key == letter)[0];
     this.clickSprite(letterButton);
     // Too fast. Too soon.
     await sleep(1500);
