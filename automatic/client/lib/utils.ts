@@ -1,5 +1,18 @@
-export function sleep(duration: number) {
-  return new Promise((r) => setTimeout(r, duration));
+export function sleep(duration: number): [Promise<void>, () => void] {
+  let resolve: (_: void) => void;
+  let reject: (error: Error) => void;
+  let promise: Promise<void> = new Promise((_resolve, _reject) => {
+    resolve = _resolve;
+    reject = _reject;
+  });
+  let timer = setTimeout(() => resolve(), duration);
+  return [
+    promise,
+    () => {
+      reject(new Error("Interrupted"));
+      clearTimeout(timer);
+    },
+  ];
 }
 
 export function waitForValue<T>(predicate: () => T | void, interval: number = 100): [Promise<T>, () => void] {

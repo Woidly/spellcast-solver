@@ -106,35 +106,42 @@ const GAMEPLAY = new (class GlobalGameplay {
   }
 
   async makeSwap(index: number, letter: string) {
+    let interrupt: (() => void) | null = null;
+    UI.showStatus(`Swapping ${index} to ${letter}...`, () => {
+      if (interrupt) {
+        interrupt();
+      }
+    });
     this.clickSprite(this.game.spellbook.powerupButtons.CHANGE);
-    await new Promise((r) => setTimeout(r, 100));
+    let [doSleep, _interrupt1] = sleep(100);
+    interrupt = _interrupt1;
+    await doSleep;
     this.clickSprite(this.getTile(index));
     let parent = this.game.parent?.parent;
     // It should never happen, so if it does, let's just throw the error.
     if (!parent) throw new Error("Failed to get game.parent.parent");
-    // TODO: Make it interruptable. waitForSprite(...)[1] is a callback that can interrupt the interval and reject the promise.
-    let letterButton = await waitForSprite(parent, (x) => (x as SwapLetterButton)?.config?.key == letter)[0];
-    this.clickSprite(letterButton);
+    let [doWait, _interrupt2] = waitForSprite(parent, (x) => (x as SwapLetterButton)?.config?.key == letter);
+    interrupt = _interrupt2;
+    this.clickSprite(await doWait);
     // Too fast. Too soon.
-    await sleep(1500);
+    let [doSleep2, _interrupt3] = sleep(1500);
+    UI.showStatus("Waiting for swap anim...", _interrupt3);
+    await doSleep2;
+    UI.hideStatus();
   }
 
+  // TODO: Error handling for everything that happens in play()
   async play() {
     let board;
-    if (!(board = this.getBoard())) return UI.showOverlay("Board not found!");
-    UI.showStatus("Solving board...");
-    let results;
-    try {
-      // TODO: Make it interruptable.
-      results = await solve(board, this.getSwaps(), this.getGemValue());
-    } catch (e) {
-      console.error(e); // TODO: Show errors directly in the UI.
-      return UI.showOverlay("Solver error");
-    }
+    if (!(board = this.getBoard())) return UI.showStatus("Board not found!");
+    let [promise, interrupt] = solve(board, this.getSwaps(), this.getGemValue());
+    UI.showStatus("Solving board...", interrupt);
+    let results = await promise;
     UI.hideStatus();
     let best = results.solutions[0];
     if (!best) {
-      return UI.showOverlay("No solution found");
+      // TODO: Add ability to retry.
+      return UI.showStatus("No solution found");
     }
     // TODO: Print swapped letters in different color, similar to how CLI does it.
     UI.log(`${best.word} +${best.score}`);

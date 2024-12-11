@@ -38,17 +38,21 @@ export function stringifyRawBoard(raw: BoardGrid): string {
     .join("");
 }
 
-export function solve(board: string, swaps: number, gem_value: number = 0): Promise<Results> {
+export function solve(board: string, swaps: number, gem_value: number = 0): [Promise<Results>, () => void] {
   let url = new URL(SERVER);
   url.searchParams.set("board", board);
   url.searchParams.set("swaps", swaps.toString());
   url.searchParams.set("gem_value", gem_value.toString());
-  return httpRequest(url.toString(), "POST").then((text) => {
-    let r = JSON.parse(text) as ServerResponse;
-    if (r.ok && r.data) {
-      return r.data;
-    } else {
-      throw new Error(r.error);
-    }
-  });
+  let [promise, interrupt] = httpRequest(url.toString(), "POST");
+  return [
+    promise.then((text) => {
+      let r = JSON.parse(text) as ServerResponse;
+      if (r.ok && r.data) {
+        return r.data;
+      } else {
+        throw new Error(r.error);
+      }
+    }),
+    interrupt,
+  ];
 }
