@@ -3,7 +3,7 @@
   position: absolute;
   top: 50vh;
   left: vw;
-  height: 200px;
+  height: 225px;
   width: 300px;
   background-color: rgba(35, 35, 35, 85%);
   transform: translate(-50%, -50%);
@@ -16,7 +16,7 @@
   flex-direction: column;
 }
 
-.WSconsole {
+.WStab {
   font-family: monospace;
   flex-grow: 1;
   overflow-y: scroll;
@@ -44,14 +44,16 @@
   text-align: center;
 }
 
+.WSstatusbar {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+}
+
 .WSdrag {
-  z-index: 102;
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  padding: 2px;
-  border: 2px solid black;
-  cursor: move;
+  cursor: grab;
+  background: #555;
+  padding-inline: 5px;
 }
 
 .WSClog span {

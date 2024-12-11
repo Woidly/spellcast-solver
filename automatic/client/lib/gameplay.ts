@@ -95,7 +95,7 @@ const GAMEPLAY = new (class GlobalGameplay {
     up(this.canvas);
   }
 
-  async getTile(index: number): Promise<Sprite> {
+  getTile(index: number): Sprite {
     let tile = Object.values(this.game.board.letterPieces).find(
       (x) => x.letterData.row * 5 + x.letterData.collumn == index
     );
@@ -108,7 +108,7 @@ const GAMEPLAY = new (class GlobalGameplay {
   async makeSwap(index: number, letter: string) {
     this.clickSprite(this.game.spellbook.powerupButtons.CHANGE);
     await new Promise((r) => setTimeout(r, 100));
-    this.clickSprite(await this.getTile(index));
+    this.clickSprite(this.getTile(index));
     let parent = this.game.parent?.parent;
     // It should never happen, so if it does, let's just throw the error.
     if (!parent) throw new Error("Failed to get game.parent.parent");
@@ -122,7 +122,7 @@ const GAMEPLAY = new (class GlobalGameplay {
   async play() {
     let board;
     if (!(board = this.getBoard())) return UI.showOverlay("Board not found!");
-    UI.showOverlay("Solving board...");
+    UI.showStatus("Solving board...");
     let results;
     try {
       // TODO: Make it interruptable.
@@ -131,7 +131,7 @@ const GAMEPLAY = new (class GlobalGameplay {
       console.error(e); // TODO: Show errors directly in the UI.
       return UI.showOverlay("Solver error");
     }
-    UI.hideOverlay();
+    UI.hideStatus();
     let best = results.solutions[0];
     if (!best) {
       return UI.showOverlay("No solution found");
@@ -152,7 +152,7 @@ const GAMEPLAY = new (class GlobalGameplay {
       // Thanks javascript.
       let index = Number(_index);
       let move = best.moves[index];
-      this.moveToSprite(await this.getTile(move.index));
+      this.moveToSprite(this.getTile(move.index));
       if (index == 0) {
         down(this.canvas);
       } else if (index == best.moves.length - 1) {
@@ -165,23 +165,18 @@ const GAMEPLAY = new (class GlobalGameplay {
     this.game = game;
     switch (this.game.currentGameState) {
       case GameState.MENU:
-        UI.setMetadata({ board: "N/A" });
-        return UI.showOverlay("In menus");
+        return UI.showStatus("In menus");
       case GameState.GAME:
-        UI.setMetadata({
-          board: this.getBoard() || "N/A",
-          round: (this.game as any)?.contentRight?.children?.[0]?.roundCounter?.currentRound,
-        });
         if (isMyTurn) {
           this.play();
         } else {
-          UI.showOverlay("Not our turn");
+          UI.showStatus("Not our turn");
         }
         return;
       case GameState.GAMEOVER:
-        return UI.showOverlay("GG!");
+        return UI.showStatus("GG!");
       default:
-        return UI.showOverlay("???");
+        return UI.showStatus("???");
     }
   }
 })();

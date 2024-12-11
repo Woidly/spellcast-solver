@@ -34,26 +34,54 @@ function draggable(element: HTMLElement, handle: HTMLElement) {
 
 export const UI = new (class {
   root: HTMLDivElement;
-  meta: HTMLDivElement;
+  tabButtons: HTMLButtonElement[];
+  tabs: HTMLDivElement[];
   console: HTMLDivElement;
   overlay: HTMLDivElement;
   overlayTitle: HTMLSpanElement;
+  status: HTMLDivElement;
+  statusText: HTMLSpanElement;
+  statusButton: HTMLButtonElement;
 
   constructor() {
     document.body.appendChild(document.createElement("style")).textContent = style;
     let root = document.body.appendChild(document.createElement("div"));
     root.className = "WSroot";
-    let meta = root.appendChild(document.createElement("div"));
-    meta.innerText = "Metadata will be here";
+    // Tab Buttons
+    let tabButtonsContainer = root.appendChild(document.createElement("div"));
+    let configTabButton = tabButtonsContainer.appendChild(document.createElement("button"));
+    configTabButton.textContent = "Config";
+    configTabButton.onclick = this.switchTab.bind(this, 0);
+    let logsTabButton = tabButtonsContainer.appendChild(document.createElement("button"));
+    logsTabButton.textContent = "Logs";
+    logsTabButton.onclick = this.switchTab.bind(this, 1);
+    let aboutTabButton = tabButtonsContainer.appendChild(document.createElement("button"));
+    aboutTabButton.textContent = "About";
+    aboutTabButton.onclick = this.switchTab.bind(this, 2);
+    let tabButtons = [configTabButton, logsTabButton, aboutTabButton];
+    // Split
     root.appendChild(document.createElement("hr")).style.width = "100%";
-    let _console = root.appendChild(document.createElement("div"));
-    _console.className = "WSconsole";
+    // Tabs
+    let configTab = root.appendChild(document.createElement("div"));
+    configTab.className = "WStab";
+    configTab.appendChild(document.createElement("button")).textContent = "TODO: put config here";
+    let logsTab = root.appendChild(document.createElement("div"));
+    logsTab.className = "WStab";
+    let aboutTab = root.appendChild(document.createElement("div"));
+    aboutTab.className = "WStab";
+    aboutTab.innerHTML = "(c) 2024 Woidly (MIT license)<br>TODO: put more info here";
+    let tabs = [configTab, logsTab, aboutTab];
+    // Overlay
     let overlay = root.appendChild(document.createElement("div"));
     overlay.className = "WSoverlay";
     let overlayTitle = overlay.appendChild(document.createElement("span"));
     overlayTitle.className = "WSoverlaytitle";
     overlayTitle.textContent = "Loading...";
-    let drag = root.appendChild(document.createElement("div"));
+    // Status bar
+    let statusBar = root.appendChild(document.createElement("div"));
+    statusBar.className = "WSstatusbar";
+    // Drag
+    let drag = statusBar.appendChild(document.createElement("div"));
     drag.className = "WSdrag";
     drag.textContent = "Drag to move";
     let oldpos = localStorage.getItem("WSoldpos");
@@ -65,11 +93,36 @@ export const UI = new (class {
       } catch {}
     }
     draggable(root, drag);
+    // Status
+    let status = statusBar.appendChild(document.createElement("div"));
+    let statusText = status.appendChild(document.createElement("span"));
+    statusText.textContent = "Loading...";
+    let statusButton = status.appendChild(document.createElement("button"));
+    statusButton.textContent = "Interrupt";
+    // Init
     this.root = root;
-    this.meta = meta;
-    this.console = _console;
+    this.console = logsTab;
+    this.tabs = tabs;
+    this.tabButtons = tabButtons;
     this.overlay = overlay;
     this.overlayTitle = overlayTitle;
+    this.status = status;
+    this.statusButton = statusButton;
+    this.statusText = statusText;
+    this.switchTab(0);
+  }
+
+  switchTab(index: number) {
+    let counter = 0;
+    for (let button of this.tabButtons) {
+      button.disabled = counter == index;
+      counter++;
+    }
+    counter = 0;
+    for (let button of this.tabs) {
+      button.style.display = counter == index ? "block" : "none";
+      counter++;
+    }
   }
 
   hideOverlay() {
@@ -79,6 +132,26 @@ export const UI = new (class {
   showOverlay(title: string) {
     this.overlayTitle.textContent = title;
     this.overlay.style.display = "block";
+  }
+
+  hideStatus() {
+    this.status.style.display = "none";
+  }
+
+  showStatus(status: string, callback: null | (() => void) = null) {
+    this.status.style.display = "block";
+    this.statusText.textContent = status;
+    if (callback) {
+      this.statusButton.disabled = false;
+      this.statusButton.onclick = () => {
+        this.statusButton.disabled = true;
+        this.statusButton.onclick = null;
+        callback();
+      };
+      this.statusButton.style.display = "block";
+    } else {
+      this.statusButton.style.display = "none";
+    }
   }
 
   print(prefix: string, className: string, message: string) {
@@ -93,16 +166,5 @@ export const UI = new (class {
 
   log(message: string) {
     this.print("LOG", "WSClog", message);
-  }
-
-  setMetadata(metadata: Record<string, string>) {
-    let keys = Object.keys(metadata).toSorted();
-    this.meta.innerHTML = "";
-    for (let key of keys) {
-      let div = document.createElement("div");
-      div.appendChild(document.createElement("b")).textContent = key.charAt(0).toUpperCase() + key.slice(1) + ":";
-      div.appendChild(document.createTextNode(" " + metadata[key]));
-      this.meta.appendChild(div);
-    }
   }
 })();
