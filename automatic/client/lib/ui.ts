@@ -150,7 +150,7 @@ export const UI = new (class {
         this.statusButton.onclick = null;
         callback();
       };
-      this.statusButton.style.display = "block";
+      this.statusButton.style.display = "inline-block";
     } else {
       this.statusButton.style.display = "none";
     }
