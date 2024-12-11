@@ -29,6 +29,8 @@ export type Sprite = {
   parent: Sprite | null;
   /** Stage, basically a sprite as big as game canvas, parent of other sprites */
   stage: Sprite;
+  /** Sprite's global alpha,  */
+  worldAlpha: number;
 };
 
 export type TileSprite = Sprite & {
@@ -53,10 +55,7 @@ export type TilePos = {
 export type BoardGrid = {
   /** Mapping of tile id to tile data */
   letters: Record<number, TileData>;
-  /**
-   * Position of tile with 2x multiplier.
-   * collumn and row both are 0-4 inclusive.
-   */
+  /** Position of tile with 2x multiplier */
   wordMultiplierPosition: TilePos | null;
 };
 
@@ -100,5 +99,9 @@ export type Game = Sprite & {
   board: BoardSprite;
   currentGameState: number;
   isMyTurn: boolean;
+  mainMenuScreen: {
+    liveGameButton: Sprite;
+    versusTwoButton: Sprite;
+  };
   spellbook: Spellbook;
 };
