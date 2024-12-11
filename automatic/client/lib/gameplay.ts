@@ -1,6 +1,6 @@
 import { down, moveTo, up } from "./mouse";
 import { solve, stringifyRawBoard } from "./solver";
-import type { Game, Sprite, SwapLetterButton, Vec2 } from "./types/extern";
+import { GameState, type Game, type Sprite, type SwapLetterButton, type Vec2 } from "./types/extern";
 import type { Move } from "./types/solver";
 import { UI } from "./ui";
 import { sleep, waitForValue } from "./utils";
@@ -164,10 +164,10 @@ const GAMEPLAY = new (class GlobalGameplay {
   handleHook(game: Game, isMyTurn: boolean) {
     this.game = game;
     switch (this.game.currentGameState) {
-      case 1:
+      case GameState.MENU:
         UI.setMetadata({ board: "N/A" });
         return UI.showOverlay("In menus");
-      case 2:
+      case GameState.GAME:
         UI.setMetadata({
           board: this.getBoard() || "N/A",
           round: (this.game as any)?.contentRight?.children?.[0]?.roundCounter?.currentRound,
@@ -178,7 +178,7 @@ const GAMEPLAY = new (class GlobalGameplay {
           UI.showOverlay("Not our turn");
         }
         return;
-      case 3:
+      case GameState.GAMEOVER:
         return UI.showOverlay("GG!");
       default:
         return UI.showOverlay("???");

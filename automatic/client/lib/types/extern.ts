@@ -91,13 +91,19 @@ type Spellbook = Sprite & {
   };
 };
 
+export enum GameState {
+  MENU = 1,
+  GAME = 2,
+  GAMEOVER = 3,
+}
+
 /**
  * The legendary `n`.
  * This single object carries the whole thing.
  */
 export type Game = Sprite & {
   board: BoardSprite;
-  currentGameState: number;
+  currentGameState: GameState;
   isMyTurn: boolean;
   mainMenuScreen: {
     liveGameButton: Sprite;
