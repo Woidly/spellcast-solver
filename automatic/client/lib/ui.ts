@@ -11,6 +11,7 @@ function draggable(element: HTMLElement, handle: HTMLElement) {
     oldy = e.y;
     document.onmousemove = onMouseMove;
     document.onmouseup = onMouseUp;
+    handle.style.cursor = "grabbing";
   }
   function onMouseMove(e: MouseEvent) {
     e.preventDefault();
@@ -28,6 +29,7 @@ function draggable(element: HTMLElement, handle: HTMLElement) {
     document.onmousemove = null;
     document.onmouseup = null;
     localStorage.setItem("WSoldpos", JSON.stringify([element.offsetLeft, element.offsetTop]));
+    handle.style.cursor = "grab";
   }
   handle.onmousedown = onMouseDown;
 }
