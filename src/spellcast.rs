@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 /// Spellcast tile.
+#[derive(Debug)]
 struct Tile {
     letter: char,
     letter_multiplier: u8,
@@ -23,7 +24,8 @@ impl Tile {
 }
 
 /// Spellcast board.
-struct Board {
+#[derive(Debug)]
+pub struct Board {
     tiles: [Tile; 25],
 }
 
