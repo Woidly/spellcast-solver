@@ -1,5 +1,7 @@
+mod args;
 mod spellcast;
 
 fn main() {
-    println!("Hello, world!");
+    let args = args::parse();
+    println!("Args: {args:?}");
 }
