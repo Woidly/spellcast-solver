@@ -33,10 +33,10 @@ impl FromStr for Board {
     /// Parses the board string into actual board.
     /// Board string syntax is based on one WintrCat made.
     /// Each tile is represented by a letter than can have postfix consisting of the following characters:
-    /// $ - 2x word multiplier;
-    /// +/* - DL/TL letter multiplier;
-    /// ! - tile has a gem;
-    /// # - frozen tile;
+    /// `$` - 2x word multiplier;
+    /// `+`/`*` - DL/TL letter multiplier;
+    /// `!` - tile has a gem;
+    /// `#` - frozen tile;
     /// However, this parser is much more lenient than original.
     /// Any characters other than ones described above will be silently ignored.
     /// This means it is compatible with original format that has newlines and numbers at the bottom.
