@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs};
+use std::{collections::HashMap, fs::read_to_string, path::PathBuf};
 
 /// Dictionary lookup result for a sequence of letters.
 #[derive(Debug)]
@@ -12,14 +12,19 @@ pub enum LookupResult {
     Both { next_letters: Vec<char> },
 }
 
-pub type Dictionary<'a> = HashMap<&'a str, LookupResult>;
+pub type Dictionary = HashMap<&'static str, LookupResult>;
 
 /// Loads dictionary from string.
 /// String should contain lowercase words separated by newlines.
 /// Only words 3-25 characters long are included.
-fn load_dictionary(string: &String) -> Dictionary {
+///
+/// Note that it uses Box::leak to give dictionary keys 'static lifetime.
+fn load_dictionary(string: String) -> Dictionary {
     let mut dictionary: Dictionary = HashMap::new();
-    for word in string.lines().filter(|x| x.len() >= 3 && x.len() <= 25) {
+    for word in Box::leak(string.into_boxed_str())
+        .lines()
+        .filter(|x| x.len() >= 3 && x.len() <= 25)
+    {
         if let Some(x) = dictionary.get_mut(word) {
             // It was included as prefix before, so its prefixes are also here and we should just mark it as both and skip prefix routine.
             if let LookupResult::Prefix { next_letters } = x {
@@ -70,4 +75,15 @@ fn load_dictionary(string: &String) -> Dictionary {
     }
 
     dictionary
+}
+
+/// Loads dictionary from file.
+/// Basically a wrapper for [load_dictionary] that handles file access.
+pub fn load_dictionary_file(path: &String) -> Result<Dictionary, String> {
+    let path = PathBuf::from(path);
+    if !path.is_file() {
+        return Err("File not found".into());
+    }
+    let content = read_to_string(path).map_err(|e| format!("Failed to read the file: {e}"))?;
+    Ok(load_dictionary(content))
 }
