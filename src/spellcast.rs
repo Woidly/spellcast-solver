@@ -1,5 +1,7 @@
 use std::str::FromStr;
 
+use crate::utils::MAX_SOLUTIONS;
+
 /// Returns points given for a specific letter.
 fn get_letter_points(letter: char) -> u8 {
     match letter {
@@ -147,6 +149,43 @@ impl Word {
             steps,
             swaps_used,
             word,
+        }
+    }
+}
+
+/// Wrapper for Vec<Word> that keeps only [crate::utils::MAX_SOLUTIONS] highest value items and is always sorted.
+pub struct SortedWordVec {
+    inner: Vec<Word>,
+}
+
+impl SortedWordVec {
+    pub fn new() -> SortedWordVec {
+        SortedWordVec {
+            inner: Vec::with_capacity(MAX_SOLUTIONS + 1), // Add 1 because it temporary exceeds limit by 1 inside self.push.
+        }
+    }
+
+    /// Inserts value into inner Vec into position determined by binary search.
+    /// If it becomes longer than [crate::utils::MAX_SOLUTIONS], last item (with smallest value) is popped.
+    /// After function returns, self.inner is guaranteed to be sorted and <= [crate::utils::MAX_SOLUTIONS] in length.
+    pub fn push(&mut self, value: Word) {
+        let mut l = 0;
+        let mut r = self.inner.len();
+        let mut m;
+        while l < r {
+            m = (l + r) / 2;
+            if self.inner[m].score > value.score {
+                l = m + 1;
+            } else if self.inner[m].score == value.score {
+                l = m;
+                break;
+            } else {
+                r = m;
+            }
+        }
+        self.inner.insert(l, value);
+        if self.inner.len() > MAX_SOLUTIONS {
+            self.inner.pop();
         }
     }
 }
