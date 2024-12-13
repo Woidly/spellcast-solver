@@ -7,7 +7,7 @@ use crate::spellcast::Board;
 pub struct Args {
     #[argh(
         option,
-        description = "dictionary",
+        description = "dictionary file (def=dictionary.txt)",
         short = 'd',
         default = "\"dictionary.txt\".into()"
     )]
@@ -16,14 +16,14 @@ pub struct Args {
     pub board: Board,
     #[argh(
         option,
-        description = "number of top moves to show",
+        description = "number of top moves to show (def=5)",
         short = 'c',
         default = "5"
     )]
     pub move_count: u8,
     #[argh(
         option,
-        description = "number of swaps to consider",
+        description = "number of swaps to consider (def=0)",
         short = 's',
         default = "0"
     )]
