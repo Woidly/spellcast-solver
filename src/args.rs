@@ -14,6 +14,20 @@ pub struct Args {
     pub dictionary: String,
     #[argh(option, description = "board string", short = 'b')]
     pub board: Board,
+    #[argh(
+        option,
+        description = "number of top moves to show",
+        short = 'c',
+        default = "5"
+    )]
+    pub move_count: u8,
+    #[argh(
+        option,
+        description = "number of swaps to consider",
+        short = 's',
+        default = "0"
+    )]
+    pub swaps: u8,
 }
 
 pub fn parse() -> Args {
