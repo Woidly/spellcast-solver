@@ -14,7 +14,7 @@ fn main() {
         quit!("Swap count can't be higher than 3!")
     }
     let clock = std::time::Instant::now();
-    let (words, _) = spellcast::solver_wrapper(args.board, args.swaps, 1, dictionary);
+    let (words, _) = spellcast::solver_wrapper(args.board, args.swaps, args.threads, dictionary);
     let elapsed_ms = clock.elapsed().as_secs_f64() * 1000.;
     println!("{elapsed_ms:.1}ms elapsed");
     let mut existing_words = vec![];
