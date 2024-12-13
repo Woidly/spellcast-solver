@@ -1,6 +1,7 @@
 mod args;
 mod dictionary;
 mod spellcast;
+mod utils;
 
 fn main() {
     let args = args::parse();
