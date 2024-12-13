@@ -1,5 +1,20 @@
 use std::str::FromStr;
 
+/// Returns points given for a specific letter.
+fn get_letter_points(letter: char) -> u8 {
+    match letter {
+        'a' | 'e' | 'i' | 'o' => 1,
+        'n' | 'r' | 's' | 't' => 2,
+        'd' | 'g' | 'l' => 3,
+        'b' | 'h' | 'p' | 'm' | 'u' | 'y' => 4,
+        'c' | 'f' | 'v' | 'w' => 5,
+        'k' => 6,
+        'j' | 'x' => 7,
+        'q' | 'z' => 8,
+        _ => 0,
+    }
+}
+
 /// Spellcast tile.
 #[derive(Debug)]
 struct Tile {
@@ -68,5 +83,59 @@ impl FromStr for Board {
                 .try_into()
                 .map_err(|_| "Failed to convert Vec<Tile> to [Tile; 25]".to_string())?,
         })
+    }
+}
+
+pub enum Step {
+    Normal { index: i8 },
+    Swap { index: i8, new_letter: char },
+}
+
+pub struct Word {
+    pub gems_collected: u8,
+    pub score: u16, // Using u16 for score just in case of some miracle overflow.
+    pub steps: Vec<Step>,
+    pub swaps_used: u8,
+    pub word: String,
+}
+
+impl Word {
+    fn new(steps: Vec<Step>, board: &Board, word: String) -> Word {
+        let mut gems_collected = 0;
+        let mut score = 0;
+        let mut swaps_used = 0;
+        let mut word_multiplier = 1;
+        for step in &steps {
+            match step {
+                Step::Normal { index } => {
+                    let tile = &board.tiles[*index as usize];
+                    score += (get_letter_points(tile.letter) * tile.letter_multiplier) as u16;
+                    word_multiplier = word_multiplier.max(tile.word_multiplier as u16);
+                    if tile.gem {
+                        gems_collected += 1;
+                    }
+                }
+                Step::Swap { index, new_letter } => {
+                    let tile = &board.tiles[*index as usize];
+                    score += (get_letter_points(*new_letter) * tile.letter_multiplier) as u16;
+                    word_multiplier = word_multiplier.max(tile.word_multiplier as u16);
+                    if tile.gem {
+                        gems_collected += 1;
+                    }
+                    swaps_used += 1;
+                }
+            }
+        }
+        score *= word_multiplier;
+        if steps.len() >= 6 {
+            score += 10;
+        }
+        Word {
+            gems_collected,
+            score,
+            steps,
+            swaps_used,
+            word,
+        }
     }
 }
