@@ -86,11 +86,15 @@ impl FromStr for Board {
     }
 }
 
+/// Single step in word.
 pub enum Step {
+    /// Use tile @index as is.
     Normal { index: i8 },
+    /// Swap tile @index to new_letter, then use.
     Swap { index: i8, new_letter: char },
 }
 
+/// Struct that stores sequence of steps needed to form the word and word metadata.
 pub struct Word {
     pub gems_collected: u8,
     pub score: u16, // Using u16 for score just in case of some miracle overflow.
@@ -100,12 +104,14 @@ pub struct Word {
 }
 
 impl Word {
+    /// Calculates score and metadata for sequence of steps and returns new instance of Word.
     fn new(steps: Vec<Step>, board: &Board, word: String) -> Word {
         let mut gems_collected = 0;
         let mut score = 0;
         let mut swaps_used = 0;
         let mut word_multiplier = 1;
         for step in &steps {
+            // The only difference between the two is that Swap step uses new_letter to calculate score instead.
             match step {
                 Step::Normal { index } => {
                     let tile = &board.tiles[*index as usize];
