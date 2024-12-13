@@ -94,6 +94,22 @@ pub enum Step {
     Swap { index: i8, new_letter: char },
 }
 
+impl Step {
+    fn index(&self) -> i8 {
+        match self {
+            Self::Normal { index } => *index,
+            Self::Swap { index, .. } => *index,
+        }
+    }
+
+    fn letter(&self, board: &Board) -> char {
+        match self {
+            Self::Normal { index } => board.tiles[*index as usize].letter,
+            Self::Swap { new_letter, .. } => *new_letter,
+        }
+    }
+}
+
 /// Struct that stores sequence of steps needed to form the word and word metadata.
 pub struct Word {
     pub gems_collected: u8,
@@ -111,25 +127,14 @@ impl Word {
         let mut swaps_used = 0;
         let mut word_multiplier = 1;
         for step in &steps {
-            // The only difference between the two is that Swap step uses new_letter to calculate score instead.
-            match step {
-                Step::Normal { index } => {
-                    let tile = &board.tiles[*index as usize];
-                    score += (get_letter_points(tile.letter) * tile.letter_multiplier) as u16;
-                    word_multiplier = word_multiplier.max(tile.word_multiplier as u16);
-                    if tile.gem {
-                        gems_collected += 1;
-                    }
-                }
-                Step::Swap { index, new_letter } => {
-                    let tile = &board.tiles[*index as usize];
-                    score += (get_letter_points(*new_letter) * tile.letter_multiplier) as u16;
-                    word_multiplier = word_multiplier.max(tile.word_multiplier as u16);
-                    if tile.gem {
-                        gems_collected += 1;
-                    }
-                    swaps_used += 1;
-                }
+            let tile = &board.tiles[step.index() as usize];
+            score += (get_letter_points(step.letter(board)) * tile.letter_multiplier) as u16;
+            word_multiplier = word_multiplier.max(tile.word_multiplier as u16);
+            if tile.gem {
+                gems_collected += 1;
+            }
+            if matches!(step, Step::Swap { .. }) {
+                swaps_used += 1;
             }
         }
         score *= word_multiplier;
