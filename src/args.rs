@@ -12,6 +12,13 @@ pub struct Args {
         default = "\"dictionary.txt\".into()"
     )]
     pub dictionary: String,
+    #[argh(
+        option,
+        description = "number of threads to use (def=1)",
+        short = 't',
+        default = "1"
+    )]
+    pub threads: u8,
     #[argh(option, description = "board string", short = 'b')]
     pub board: Board,
     #[argh(
