@@ -269,3 +269,79 @@ fn solver(
         }
     }
 }
+
+pub fn solver_wrapper(
+    board: Board,
+    swaps: u8,
+    thread_count: u8,
+    dictionary: &'static Dictionary,
+) -> (Vec<Word>, Board) {
+    let mut calls = vec![];
+    let mut words = SortedWordVec::new();
+    for (index, tile) in (&board.tiles).into_iter().enumerate() {
+        let index = index as i8;
+        if tile.frozen {
+            continue;
+        }
+        calls.push((vec![Step::Normal { index }], tile.letter.to_string(), swaps));
+        if swaps > 0 {
+            for new_letter in 'a'..='z' {
+                if new_letter == tile.letter {
+                    continue;
+                }
+                calls.push((
+                    vec![Step::Swap { index, new_letter }],
+                    new_letter.to_string(),
+                    swaps - 1,
+                ));
+            }
+        }
+    }
+    if thread_count <= 1 {
+        for mut call in calls {
+            solver(
+                &board,
+                &mut call.0,
+                &mut call.1,
+                call.2,
+                &mut words,
+                dictionary,
+            );
+        }
+        return (words.inner, board);
+    } else {
+        let board_ptr = Box::into_raw(Box::new(board));
+        let mut threads = vec![];
+        let chunk_size = (calls.len() + thread_count as usize - 1) / thread_count as usize;
+        {
+            let board_ref: &'static Board = unsafe { &*board_ptr };
+            while !calls.is_empty() {
+                let chunk = calls
+                    .drain(..chunk_size.min(calls.len()))
+                    .collect::<Vec<_>>();
+                threads.push(std::thread::spawn(move || {
+                    let mut thread_words = SortedWordVec::new();
+                    for mut call in chunk {
+                        solver(
+                            &board_ref,
+                            &mut call.0,
+                            &mut call.1,
+                            call.2,
+                            &mut thread_words,
+                            dictionary,
+                        );
+                    }
+                    thread_words
+                }))
+            }
+            for thread in threads {
+                if let Ok(thread_words) = thread.join() {
+                    for word in thread_words.inner {
+                        words.push(word);
+                    }
+                }
+            }
+        }
+        return (words.inner, unsafe { *Box::from_raw(board_ptr) });
+    }
+}
