@@ -1,6 +1,9 @@
 use std::str::FromStr;
 
-use crate::utils::MAX_SOLUTIONS;
+use crate::{
+    dictionary::{Dictionary, LookupResult},
+    utils::MAX_SOLUTIONS,
+};
 
 /// Returns points given for a specific letter.
 fn get_letter_points(letter: char) -> u8 {
@@ -89,6 +92,7 @@ impl FromStr for Board {
 }
 
 /// Single step in word.
+#[derive(Clone)]
 pub enum Step {
     /// Use tile @index as is.
     Normal { index: i8 },
@@ -186,6 +190,116 @@ impl SortedWordVec {
         self.inner.insert(l, value);
         if self.inner.len() > MAX_SOLUTIONS {
             self.inner.pop();
+        }
+    }
+}
+
+fn solver(
+    board: &Board,
+    steps: &mut Vec<Step>,
+    word: &mut String,
+    swaps: u8,
+    words: &mut SortedWordVec,
+    dictionary: &Dictionary,
+) {
+    let last_step = steps.last().expect("`steps` should have at least one item");
+    let last_index = last_step.index();
+    let old_moves: Vec<i8> = steps.into_iter().map(|m| m.index()).collect();
+    // For whatever weird reason key remains borrowed even after lookup is done (I believe, borrow for key is held while we hold borrow for value).
+    // Therefore, we need to clone it, otherwise we won't be able to pass mutable reference to word to solve_child_moves.
+    let temp = word.clone();
+    let this = dictionary
+        .get(&temp.as_str())
+        .expect("`word` should be a valid prefix/word");
+    // TODO: Maybe pre-build the tree of next letter results?
+    // Then it'll be possible to just pass down a single lookup done in initial solver() call for a single letter.
+    // In theory it should bring number of dictionary lookups down from multiple millions (worst case, 3 swaps) to just 25 (0 swaps) or 650 (1+ swaps).
+    // Also, it'll probably get rid of some cloning.
+    match this {
+        LookupResult::Word => return words.push(Word::new(steps.clone(), board, word.clone())),
+        LookupResult::Both { next_letters } => {
+            words.push(Word::new(steps.to_owned().clone(), board, word.clone()));
+            solve_child_moves(
+                board,
+                steps,
+                word,
+                swaps,
+                last_index,
+                &old_moves,
+                next_letters,
+                words,
+                dictionary,
+            );
+        }
+        LookupResult::Prefix { next_letters } => {
+            solve_child_moves(
+                board,
+                steps,
+                word,
+                swaps,
+                last_index,
+                &old_moves,
+                next_letters,
+                words,
+                dictionary,
+            );
+        }
+    }
+}
+
+fn solve_child_moves(
+    board: &Board,
+    steps: &mut Vec<Step>,
+    word: &mut String,
+    swaps: u8,
+    index: i8,
+    old_moves: &Vec<i8>,
+    next_letters: &Vec<char>,
+    words: &mut SortedWordVec,
+    dictionary: &Dictionary,
+) {
+    let x = index % 5;
+    let y = index / 5;
+    for dx in [-1, 0, 1] {
+        for dy in [-1, 0, 1] {
+            if dx == 0 && dy == 0 {
+                continue;
+            }
+            let nx = x + dx;
+            let ny = y + dy;
+            if nx < 0 || nx > 4 || ny < 0 || ny > 4 {
+                continue;
+            }
+            let ni = ny * 5 + nx;
+            let tile = &board.tiles[ni as usize];
+            if tile.frozen || old_moves.contains(&ni) {
+                continue;
+            }
+            let original_letter_match = next_letters.contains(&tile.letter);
+            if swaps > 0 {
+                for letter in next_letters {
+                    // Skip original letter. It's already here, no need to waste a swap on it.
+                    if *letter == tile.letter {
+                        continue;
+                    }
+                    steps.push(Step::Swap {
+                        index: ni,
+                        new_letter: *letter,
+                    });
+                    word.push(*letter);
+                    solver(board, steps, word, swaps - 1, words, dictionary);
+                    steps.pop();
+                    word.pop();
+                }
+            }
+            if !original_letter_match {
+                continue;
+            }
+            steps.push(Step::Normal { index: ni });
+            word.push(tile.letter);
+            solver(board, steps, word, swaps, words, dictionary);
+            steps.pop();
+            word.pop();
         }
     }
 }
