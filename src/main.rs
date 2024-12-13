@@ -1,4 +1,5 @@
 mod args;
+mod dictionary;
 mod spellcast;
 
 fn main() {
