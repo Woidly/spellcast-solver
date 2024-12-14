@@ -1,6 +1,9 @@
 use std::str::FromStr;
 
-use crate::{dictionary::Node, utils::MAX_SOLUTIONS};
+use crate::{
+    dictionary::Node,
+    utils::{MAX_SOLUTIONS, RED, RESET},
+};
 
 /// Returns points given for a specific letter.
 fn get_letter_points(letter: char) -> u8 {
@@ -157,9 +160,19 @@ impl Word {
     }
 
     /// Returns actual word string.
-    pub fn word(&self, board: &Board) -> String {
+    pub fn word(&self, board: &Board, show_swaps: bool, colour: bool) -> String {
         let mut buf = String::new();
         for step in &self.steps {
+            if show_swaps {
+                if let Step::Swap { new_letter, .. } = step {
+                    buf += &if colour {
+                        format!("{}{}{}", RED, new_letter, RESET)
+                    } else {
+                        format!("[{}]", step.letter(board))
+                    };
+                    continue;
+                }
+            }
             buf += &step.letter(board).to_string();
         }
         buf

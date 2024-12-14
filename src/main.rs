@@ -36,7 +36,7 @@ fn main() {
         if counter >= args.move_count {
             break;
         }
-        let word_str = word.word(&board);
+        let word_str = word.word(&board, false, false);
         if existing_words.contains(&word_str) {
             continue;
         }
@@ -47,7 +47,7 @@ fn main() {
     for (i, word) in final_words.into_iter().enumerate().rev() {
         println!(
             "{i}. {} (+{}pts, +{} gems, -{} swaps)",
-            word.word(&board),
+            word.word(&board, true, !args.no_colour),
             word.score,
             word.gems_collected,
             word.swaps_used
