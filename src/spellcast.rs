@@ -1,9 +1,6 @@
 use std::str::FromStr;
 
-use crate::{
-    dictionary::{Dictionary, LookupResult},
-    utils::MAX_SOLUTIONS,
-};
+use crate::{dictionary::Node, utils::MAX_SOLUTIONS};
 
 /// Returns points given for a specific letter.
 fn get_letter_points(letter: char) -> u8 {
@@ -92,7 +89,7 @@ impl FromStr for Board {
 }
 
 /// Single step in word.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Step {
     /// Use tile @index as is.
     Normal { index: i8 },
@@ -122,12 +119,11 @@ pub struct Word {
     pub score: u16, // Using u16 for score just in case of some miracle overflow.
     pub steps: Vec<Step>,
     pub swaps_used: u8,
-    pub word: String,
 }
 
 impl Word {
     /// Calculates score and metadata for sequence of steps and returns new instance of Word.
-    fn new(steps: Vec<Step>, board: &Board, word: String) -> Word {
+    fn new(steps: Vec<Step>, board: &Board) -> Word {
         let mut gems_collected = 0;
         let mut score = 0;
         let mut swaps_used = 0;
@@ -152,8 +148,15 @@ impl Word {
             score,
             steps,
             swaps_used,
-            word,
         }
+    }
+
+    pub fn word(&self, board: &Board) -> String {
+        let mut buf = String::new();
+        for step in &self.steps {
+            buf += &step.letter(board).to_string();
+        }
+        buf
     }
 }
 
@@ -194,35 +197,18 @@ impl SortedWordVec {
     }
 }
 
-fn solver(
-    board: &Board,
-    steps: &mut Vec<Step>,
-    word: &mut String,
-    swaps: u8,
-    words: &mut SortedWordVec,
-    dictionary: &Dictionary,
-) {
+fn solver(board: &Board, steps: &mut Vec<Step>, node: &Node, swaps: u8, words: &mut SortedWordVec) {
     let last_step = steps.last().expect("`steps` should have at least one item");
     let last_index = last_step.index();
     let old_moves: Vec<i8> = steps.into_iter().map(|m| m.index()).collect();
-    // For whatever weird reason key remains borrowed even after lookup is done (I believe, borrow for key is held while we hold borrow for value).
-    // Therefore, we need to clone it, otherwise we won't be able to mutate it below.
-    let temp = word.clone();
-    let this = dictionary
-        .get(&temp.as_str())
-        .expect("`word` should be a valid prefix/word");
     let final_next_letters;
-    // TODO: Maybe pre-build the tree of next letter results?
-    // Then it'll be possible to just pass down a single lookup done in initial solver() call for a single letter.
-    // In theory it should bring number of dictionary lookups down from multiple millions (worst case, 3 swaps) to just 25 (0 swaps) or 650 (1+ swaps).
-    // Also, it'll probably get rid of some cloning.
-    match this {
-        LookupResult::Word => return words.push(Word::new(steps.clone(), board, word.clone())),
-        LookupResult::Both { next_letters } => {
-            words.push(Word::new(steps.to_owned().clone(), board, word.clone()));
+    match node {
+        Node::Word => return words.push(Word::new(steps.clone(), board)),
+        Node::Both { next_letters } => {
+            words.push(Word::new(steps.to_owned().clone(), board));
             final_next_letters = next_letters;
         }
-        LookupResult::Prefix { next_letters } => final_next_letters = next_letters,
+        Node::Prefix { next_letters } => final_next_letters = next_letters,
     }
     let x = last_index % 5;
     let y = last_index / 5;
@@ -241,31 +227,21 @@ fn solver(
             if tile.frozen || old_moves.contains(&ni) {
                 continue;
             }
-            let original_letter_match = final_next_letters.contains(&tile.letter);
-            if swaps > 0 {
-                for letter in final_next_letters {
-                    // Skip original letter. It's already here, no need to waste a swap on it.
-                    if *letter == tile.letter {
-                        continue;
-                    }
+            for (letter, sub_node) in final_next_letters {
+                // Skip original letter. It's already here, no need to waste a swap on it.
+                if *letter == tile.letter {
+                    steps.push(Step::Normal { index: ni });
+                    solver(board, steps, sub_node, swaps, words);
+                    steps.pop();
+                } else if swaps > 0 {
                     steps.push(Step::Swap {
                         index: ni,
                         new_letter: *letter,
                     });
-                    word.push(*letter);
-                    solver(board, steps, word, swaps - 1, words, dictionary);
+                    solver(board, steps, sub_node, swaps - 1, words);
                     steps.pop();
-                    word.pop();
                 }
             }
-            if !original_letter_match {
-                continue;
-            }
-            steps.push(Step::Normal { index: ni });
-            word.push(tile.letter);
-            solver(board, steps, word, swaps, words, dictionary);
-            steps.pop();
-            word.pop();
         }
     }
 }
@@ -274,7 +250,7 @@ pub fn solver_wrapper(
     board: Board,
     swaps: u8,
     thread_count: u8,
-    dictionary: &'static Dictionary,
+    dictionary: &'static Vec<(char, Node)>,
 ) -> (Vec<Word>, Board) {
     let mut calls = vec![];
     let mut words = SortedWordVec::new();
@@ -283,15 +259,17 @@ pub fn solver_wrapper(
         if tile.frozen {
             continue;
         }
-        calls.push((vec![Step::Normal { index }], tile.letter.to_string(), swaps));
-        if swaps > 0 {
-            for new_letter in 'a'..='z' {
-                if new_letter == tile.letter {
-                    continue;
-                }
+        for (new_letter, node) in dictionary {
+            if *new_letter == tile.letter {
+                calls.push((vec![Step::Normal { index }], node, swaps));
+                continue;
+            } else if swaps > 0 {
                 calls.push((
-                    vec![Step::Swap { index, new_letter }],
-                    new_letter.to_string(),
+                    vec![Step::Swap {
+                        index,
+                        new_letter: *new_letter,
+                    }],
+                    node,
                     swaps - 1,
                 ));
             }
@@ -299,14 +277,7 @@ pub fn solver_wrapper(
     }
     if thread_count <= 1 {
         for mut call in calls {
-            solver(
-                &board,
-                &mut call.0,
-                &mut call.1,
-                call.2,
-                &mut words,
-                dictionary,
-            );
+            solver(&board, &mut call.0, call.1, call.2, &mut words);
         }
         return (words.inner, board);
     } else {
@@ -322,14 +293,7 @@ pub fn solver_wrapper(
                 threads.push(std::thread::spawn(move || {
                     let mut thread_words = SortedWordVec::new();
                     for mut call in chunk {
-                        solver(
-                            &board_ref,
-                            &mut call.0,
-                            &mut call.1,
-                            call.2,
-                            &mut thread_words,
-                            dictionary,
-                        );
+                        solver(&board_ref, &mut call.0, call.1, call.2, &mut thread_words);
                     }
                     thread_words
                 }))
