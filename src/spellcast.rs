@@ -88,16 +88,18 @@ impl FromStr for Board {
     }
 }
 
-/// Single step in word.
+/// Single step in forming a word.
 #[derive(Clone, Debug)]
 pub enum Step {
-    /// Use tile @index as is.
+    /// Use tile @ `self.index` as is.
     Normal { index: i8 },
-    /// Swap tile @index to new_letter, then use.
+    /// Swap tile @ `self.index` to `self.new_letter`, then use.
     Swap { index: i8, new_letter: char },
 }
 
 impl Step {
+    /// Returns `self.index`.
+    /// Just a convenience function that handles matching and dereferencing.
     fn index(&self) -> i8 {
         match self {
             Self::Normal { index } => *index,
@@ -105,6 +107,9 @@ impl Step {
         }
     }
 
+    /// Returns the letter represented by this Step.
+    /// For Normal, it's letter from board tile @ `self.index`.
+    /// For Swap, it's `self.new_letter`.
     fn letter(&self, board: &Board) -> char {
         match self {
             Self::Normal { index } => board.tiles[*index as usize].letter,
@@ -151,6 +156,7 @@ impl Word {
         }
     }
 
+    /// Returns actual word string.
     pub fn word(&self, board: &Board) -> String {
         let mut buf = String::new();
         for step in &self.steps {
@@ -166,6 +172,7 @@ pub struct SortedWordVec {
 }
 
 impl SortedWordVec {
+    /// Creates empty SortedWordVec.
     pub fn new() -> SortedWordVec {
         SortedWordVec {
             inner: Vec::with_capacity(MAX_SOLUTIONS + 1), // Add 1 because it temporary exceeds limit by 1 inside self.push.
@@ -174,7 +181,7 @@ impl SortedWordVec {
 
     /// Inserts value into inner Vec into position determined by binary search.
     /// If it becomes longer than [crate::utils::MAX_SOLUTIONS], last item (with smallest value) is popped.
-    /// After function returns, self.inner is guaranteed to be sorted and <= [crate::utils::MAX_SOLUTIONS] in length.
+    /// After function returns, `self.inner` is guaranteed to be sorted and <= [crate::utils::MAX_SOLUTIONS] in length.
     pub fn push(&mut self, value: Word) {
         let mut l = 0;
         let mut r = self.inner.len();
@@ -197,6 +204,9 @@ impl SortedWordVec {
     }
 }
 
+/// Recursively solves the board starting from `node`and adds found words to `words` [SortedWordVec].
+/// `steps` is used to avoid duplicate steps and determine current position on board.
+/// If `swaps` is not 0, additional calls with `swaps` reduced by 1 and `Step::Swap` for remaining next letters are created.
 fn solver(board: &Board, steps: &mut Vec<Step>, node: &Node, swaps: u8, words: &mut SortedWordVec) {
     let last_step = steps.last().expect("`steps` should have at least one item");
     let last_index = last_step.index();
@@ -228,7 +238,6 @@ fn solver(board: &Board, steps: &mut Vec<Step>, node: &Node, swaps: u8, words: &
                 continue;
             }
             for (letter, sub_node) in final_next_letters {
-                // Skip original letter. It's already here, no need to waste a swap on it.
                 if *letter == tile.letter {
                     steps.push(Step::Normal { index: ni });
                     solver(board, steps, sub_node, swaps, words);
@@ -246,6 +255,10 @@ fn solver(board: &Board, steps: &mut Vec<Step>, node: &Node, swaps: u8, words: &
     }
 }
 
+/// Wrapper that creates initial [solver] calls and handles multithreading.
+/// For each tile initial calls consist of `Step::Normal` for original letters and (if swaps are available) `Step::Swap` for rest of letters.
+/// It takes ownership of board because of how multithreading is implemented, but it is returned back alongside with solving results.
+/// Returned words are automatically sorted thanks to [SortedWordVec].
 pub fn solver_wrapper(
     board: Board,
     swaps: u8,
@@ -281,6 +294,8 @@ pub fn solver_wrapper(
         }
         return (words.inner, board);
     } else {
+        // Nope, won't be doing Arc (tested it, performance with Arc sucks).
+        // Unsafe code is completely safe, because all threads using board_ref are join()ed before taking back the board.
         let board_ptr = Box::into_raw(Box::new(board));
         let mut threads = vec![];
         let chunk_size = (calls.len() + thread_count as usize - 1) / thread_count as usize;

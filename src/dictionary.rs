@@ -1,12 +1,18 @@
 use std::{fs::read_to_string, path::PathBuf};
 
+/// A node in dictionary tree.
 pub enum Node {
+    /// Node is a prefix. It can only be followed by child nodes (`self.next_letters`) and is useless on its own.
     Prefix { next_letters: Vec<(char, Node)> },
+    /// Node is a word. It has no child nodes.
     Word,
+    /// Node is both a prefix and a word. It can be followed by child nodes (`self.next_letters`), but can also be a standalone word.
     Both { next_letters: Vec<(char, Node)> },
 }
 
 impl Node {
+    /// Returns `&mut self.next_letters` for `Both`/`Prefix`, panics for `Word`.
+    /// Just a convenience function that handles matching and panic.
     pub fn get_next_letters(&mut self) -> &mut Vec<(char, Node)> {
         match self {
             Node::Word => panic!("get_next_letters called on Node::Word"),
@@ -15,6 +21,11 @@ impl Node {
     }
 }
 
+/// Parses string of words separated by newlines into tree-like structure.
+/// Because of how dictionary works, words shorter than 3 characters are ignored.
+/// Words longer than 25 characters are also ignored, because it is impossible to play them in Spellcast.
+/// Despite code having lot of things that in theory can panic, it does not panic under normal circumstances.
+/// Each `Both`/`Prefix` node is guaranteed to have at least one child node, and each branch is guaranteed to eventually end in `Word` node.
 pub fn load_dictionary_tree(string: String) -> Vec<(char, Node)> {
     let mut root = Node::Prefix {
         next_letters: vec![],
