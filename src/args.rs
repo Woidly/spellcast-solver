@@ -37,6 +37,8 @@ pub struct Args {
     pub swaps: u8,
     #[argh(switch, description = "print verbose output to stderr", short = 'v')]
     pub verbose: bool,
+    #[argh(switch, description = "disable colours in output")]
+    pub no_colour: bool,
 }
 
 pub fn parse() -> Args {
