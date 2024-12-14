@@ -215,7 +215,7 @@ fn solver(board: &Board, steps: &mut Vec<Step>, node: &Node, swaps: u8, words: &
     match node {
         Node::Word => return words.push(Word::new(steps.clone(), board)),
         Node::Both { next_letters } => {
-            words.push(Word::new(steps.to_owned().clone(), board));
+            words.push(Word::new(steps.clone(), board));
             final_next_letters = next_letters;
         }
         Node::Prefix { next_letters } => final_next_letters = next_letters,
