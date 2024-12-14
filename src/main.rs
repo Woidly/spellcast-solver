@@ -5,19 +5,30 @@ mod utils;
 
 fn main() {
     let args = args::parse();
+    if args.swaps > 3 {
+        quit!("Swap count can't be higher than 3!")
+    }
+    let clock = std::time::Instant::now();
     // TODO: Maybe make dictionary loading a part of argument parsing (similar to board argument)?
     let dictionary = match dictionary::load_dictionary_file(&args.dictionary) {
         Ok(dictionary) => Box::leak(Box::new(dictionary)),
         Err(e) => quit!("Failed to load dictionary: {e}"),
     };
-    if args.swaps > 3 {
-        quit!("Swap count can't be higher than 3!")
+    if args.verbose {
+        eprintln!(
+            "Loaded the dictionary in {:.1}ms",
+            clock.elapsed().as_secs_f64() * 1000.
+        )
     }
     let clock = std::time::Instant::now();
     let (words, board) =
         spellcast::solver_wrapper(args.board, args.swaps, args.threads, dictionary);
-    let elapsed_ms = clock.elapsed().as_secs_f64() * 1000.;
-    println!("{elapsed_ms:.1}ms elapsed");
+    if args.verbose {
+        eprintln!(
+            "Solved the board in {:.1}ms",
+            clock.elapsed().as_secs_f64() * 1000.
+        );
+    }
     let mut existing_words = vec![];
     let mut counter = 0;
     let mut final_words = vec![];
