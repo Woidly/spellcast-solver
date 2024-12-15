@@ -168,7 +168,7 @@ impl Word {
                     buf += &if colour {
                         format!("{}{}{}", RED, new_letter, RESET)
                     } else {
-                        format!("[{}]", step.letter(board))
+                        format!("[{}]", new_letter)
                     };
                     continue;
                 }
@@ -180,13 +180,13 @@ impl Word {
 }
 
 /// Wrapper for Vec<Word> that keeps only [crate::utils::MAX_SOLUTIONS] highest value items and is always sorted.
-pub struct SortedWordVec {
+struct SortedWordVec {
     inner: Vec<Word>,
 }
 
 impl SortedWordVec {
     /// Creates empty SortedWordVec.
-    pub fn new() -> SortedWordVec {
+    fn new() -> SortedWordVec {
         SortedWordVec {
             inner: Vec::with_capacity(MAX_SOLUTIONS + 1), // Add 1 because it temporary exceeds limit by 1 inside self.push.
         }
@@ -195,7 +195,7 @@ impl SortedWordVec {
     /// Inserts value into inner Vec into position determined by binary search.
     /// If it becomes longer than [crate::utils::MAX_SOLUTIONS], last item (with smallest value) is popped.
     /// After function returns, `self.inner` is guaranteed to be sorted and <= [crate::utils::MAX_SOLUTIONS] in length.
-    pub fn push(&mut self, value: Word) {
+    fn push(&mut self, value: Word) {
         let mut l = 0;
         let mut r = self.inner.len();
         let mut m;
