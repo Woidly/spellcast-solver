@@ -14,20 +14,16 @@ fn main() {
         Ok(dictionary) => Box::leak(Box::new(dictionary)),
         Err(e) => quit!("Failed to load dictionary: {e}"),
     };
-    if args.verbose {
-        eprintln!(
-            "Loaded the dictionary in {:.1}ms",
-            clock.elapsed().as_secs_f64() * 1000.
-        )
+    let elapsed_dict = clock.elapsed().as_secs_f64() * 1000.;
+    if args.format.is_for_humans() {
+        println!("Loaded the dictionary in {elapsed_dict:.1}ms",)
     }
     let clock = std::time::Instant::now();
     let (words, board) =
         spellcast::solver_wrapper(args.board, args.swaps, args.threads, dictionary);
-    if args.verbose {
-        eprintln!(
-            "Solved the board in {:.1}ms",
-            clock.elapsed().as_secs_f64() * 1000.
-        );
+    let elapsed_solver = clock.elapsed().as_secs_f64() * 1000.;
+    if args.format.is_for_humans() {
+        println!("Solved the board in {elapsed_solver:.1}ms",);
     }
     let mut existing_words = vec![];
     let mut counter = 0;
@@ -44,13 +40,18 @@ fn main() {
         existing_words.push(word_str);
         final_words.push(word);
     }
-    for (i, word) in final_words.into_iter().enumerate().rev() {
-        println!(
-            "{i}. {} (+{}pts, +{} gems, -{} swaps)",
-            word.word(&board, true, !args.no_colour),
-            word.score,
-            word.gems_collected,
-            word.swaps_used
-        );
+    match args.format {
+        args::OutputFormat::JSON => todo!("JSON output format isn't implemented yet"),
+        args::OutputFormat::Simple => {
+            for (i, word) in final_words.into_iter().enumerate().rev() {
+                println!(
+                    "{i}. {} (+{}pts, +{} gems, -{} swaps)",
+                    word.word(&board, true, !args.no_colour),
+                    word.score,
+                    word.gems_collected,
+                    word.swaps_used
+                );
+            }
+        }
     }
 }
