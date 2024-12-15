@@ -3,7 +3,8 @@ use argh::FromArgs;
 use crate::spellcast::Board;
 
 #[derive(FromArgs, Debug)]
-/// Spellcast solver.
+/// Spellcast solver CLI.
+/// You can learn more about arguments in CLI.md.
 pub struct Args {
     #[argh(
         option,

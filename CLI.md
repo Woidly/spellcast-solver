@@ -3,7 +3,7 @@
 ```
 Usage: spellcast-solver [-d <dictionary>] [-t <threads>] -b <board> [-c <move-count>] [-s <swaps>] [-v] [--no-colour]
 
-Spellcast solver.
+Spellcast solver CLI. You can learn more about arguments in CLI.md.
 
 Options:
   -d, --dictionary  dictionary file (def=dictionary.txt)
