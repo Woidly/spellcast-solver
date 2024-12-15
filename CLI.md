@@ -1,7 +1,7 @@
 # CLI documentation
 
 ```
-Usage: spellcast-solver [-d <dictionary>] [-t <threads>] -b <board> [-c <move-count>] [-s <swaps>] [-v] [--no-colour]
+Usage: spellcast-solver [-d <dictionary>] [-t <threads>] -b <board> [-c <move-count>] [-s <swaps>] [--no-colour] [-f <format>]
 
 Spellcast solver CLI. You can learn more about arguments in CLI.md.
 
@@ -11,8 +11,8 @@ Options:
   -b, --board       board string
   -c, --move-count  number of top moves to show (def=5)
   -s, --swaps       number of swaps to consider (def=0)
-  -v, --verbose     print verbose output to stderr
   --no-colour       disable colours in output
+  -f, --format      output format (def=simple)
   --help            display usage information
 ```
 
@@ -54,12 +54,25 @@ However, you can (and will) get less moves than this number (especially with low
 Number of swaps to consider. Defaults to `0`.
 Basically a number of gems you currently have divided by 3 and rounded down.
 
-### `-v`/`--verbose`
-
-Whether to print verbose output. It's a switch, therefore it's `false` (no verbose output) unless it's specified.
-As of now, it just prints time it took to load dictionary and solve the board. It is printed to stderr, therefore it won't disrupt any automated parsing of stdout.
-
 ### `--no-colour`
 
 Whether to disable colours in output. It's a switch, therefore it's `false` (colours are enabled) unless it's specified.
 As of now, colours are used only to highlight which letters have been swapped (in red). If colours are disabled, swapped letters will be put in \[square brackets\] instead.
+
+### `-f`/`--format`
+
+Output format. Defaults to `simple`.
+Possible values:
+
+- `simple`  
+   Simple output format that compactly prints each word in a single line.
+  It looks something like this:
+
+  > 0.  mar**s**h**ma**llowy (+44pts, +0 gems, -3 swaps)
+
+  Swapped letters (shown here in bold) will either be coloured red or (with `--no-colour`) put in \[square brackets\].
+  Words are shown in reverse order (the best one being at the bottom of terminal with index 0).
+
+- `json`  
+   JSON output format that is intended for automation purposes.
+  Work in progress!
