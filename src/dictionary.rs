@@ -11,12 +11,13 @@ pub enum Node {
 }
 
 impl Node {
-    /// Returns `&mut self.next_letters` for `Both`/`Prefix`, panics for `Word`.
+    /// Returns `&mut self.next_letters` for `Both`/`Prefix`.
+    /// It panics when called on `Word`, however dictionary loading logic ensures it is never called on `Word`.
     /// Just a convenience function that handles matching and panic.
-    pub fn get_next_letters(&mut self) -> &mut Vec<(char, Node)> {
+    fn get_next_letters(&mut self) -> &mut Vec<(char, Node)> {
         match self {
-            Node::Word => panic!("get_next_letters called on Node::Word"),
             Node::Both { next_letters } | Node::Prefix { next_letters } => next_letters,
+            Node::Word => unreachable!(),
         }
     }
 }
@@ -56,40 +57,29 @@ pub fn load_dictionary_tree(string: String) -> Vec<(char, Node)> {
                 found_index += 1;
             }
             if found {
-                let (_, sub_node) = &mut parent.get_next_letters()[found_index];
-                match sub_node {
+                let (_, current_letter_node) = &mut parent.get_next_letters()[found_index];
+                match current_letter_node {
+                    Node::Both { .. } | Node::Prefix { .. } => {
+                        let mut next_found = false;
+                        for (sub_letter, _) in current_letter_node.get_next_letters() {
+                            if *sub_letter == next_letter {
+                                next_found = true;
+                                break;
+                            }
+                        }
+                        if !next_found {
+                            current_letter_node
+                                .get_next_letters()
+                                .push(next_letter_node_def);
+                        }
+                    }
                     Node::Word => {
-                        *sub_node = Node::Both {
+                        *current_letter_node = Node::Both {
                             next_letters: vec![next_letter_node_def],
                         }
                     }
-                    Node::Prefix { .. } | Node::Both { .. } => {
-                        let mut sub_found = false;
-                        let mut sub_found_index = 0;
-                        for (sub_letter, _) in sub_node.get_next_letters() {
-                            if *sub_letter == next_letter {
-                                sub_found = true;
-                                break;
-                            }
-                            sub_found_index += 1;
-                        }
-                        if sub_found {
-                            let (_, sub_sub_node) =
-                                &mut sub_node.get_next_letters()[sub_found_index];
-                            match sub_sub_node {
-                                Node::Word => {
-                                    *sub_sub_node = Node::Both {
-                                        next_letters: vec![],
-                                    }
-                                }
-                                _ => (),
-                            }
-                        } else {
-                            sub_node.get_next_letters().push(next_letter_node_def);
-                        }
-                    }
                 }
-                parent = sub_node;
+                parent = current_letter_node;
             } else {
                 parent.get_next_letters().push((
                     letter,
