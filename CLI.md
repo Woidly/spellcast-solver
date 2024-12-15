@@ -27,14 +27,14 @@ Path to the dictionary file. Defaults to `dictionary.txt`. Dictionary format is 
 Number of threads to use for solver. Defaults to `1`.  
 **Bewarb, not all threads are created equal!**  
 While initial calls are distributed evenly between threads, these calls aren't even by their nature.
-Some calls may quickly return, while other might search bit longer.  
-Therefore, while using multiple threads improves performance a lot, you shouldn't expect 10x speedup from using 10 threads.
+Some calls may complete quickly, while others might take longer to process.  
+Therefore, while using multiple threads significantly improves performance, you shouldn't expect 10x speedup from using 10 threads.
 
 ### `-b`/`--board`
 
 Board string. It's a required argument.  
 Board string syntax is based on one WintrCat made.
-Each tile is represented by a (case-insensitive) letter than can have postfix consisting of the following characters:
+Each tile is represented by a (case-insensitive) letter that can have postfix consisting of the following characters:
 
 - `$` - 2x word multiplier
 - `+`/`*` - DL/TL letter multiplier
@@ -47,7 +47,7 @@ This means it is compatible with original format that has newlines and numbers a
 ### `-c`/`--move-count`
 
 Number of top moves to show. Defaults to `5`.
-However, you can (and will) get less moves than this number (especially with low [`MAX_SOLUTIONS`](src/utils.rs#L5)).
+However, you can (and will) get fewer moves than this number (especially with low [`MAX_SOLUTIONS`](src/utils.rs#L5)).
 
 ### `-s`/`--swaps`
 
@@ -65,7 +65,7 @@ Output format. Defaults to `simple`.
 Possible values:
 
 - `simple`  
-   Simple output format that compactly prints each word in a single line.
+   Simple output format that prints each word compactly on a single line.
   For each word it looks something like this:
 
   > 0.  mar**s**h**ma**llowy (+44pts, +0 gems, -3 swaps)
@@ -106,7 +106,7 @@ Possible values:
     - `solver` - time spent solving the board
   - `words` - array of top words. Each item is as follows:
     - `gems_collected` - number of gems collected with this word
-    - `steps` - array if steps needed to play the word. Each item is as follows:
+    - `steps` - array of steps needed to play the word. Each item is as follows:
       - `swap` - boolean indicating whether this step swaps a letter
       - `index` - 0-based flat index of tile (`0` being top-left tile, `24` being bottom-right tile)
       - `new_letter` - _(optional)_ if `swap` is true, single-char string indicating new letter
