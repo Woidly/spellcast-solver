@@ -1,4 +1,4 @@
-use argh::FromArgs;
+use argh::{FromArgValue, FromArgs};
 
 use crate::spellcast::Board;
 
@@ -40,6 +40,43 @@ pub struct Args {
     pub verbose: bool,
     #[argh(switch, description = "disable colours in output")]
     pub no_colour: bool,
+    #[argh(
+        option,
+        description = "output format (def=simple)",
+        short = 'f',
+        default = "OutputFormat::Simple"
+    )]
+    pub format: OutputFormat,
+}
+
+/// Enum used for storing output format.
+#[derive(Debug)]
+pub enum OutputFormat {
+    /// Simple output format that compactly prints each word in a single line.
+    Simple,
+    /// JSON output format that is intended for automation purposes.
+    JSON,
+}
+
+impl OutputFormat {
+    /// Returns whether format is intended for humans.
+    /// As of now, it returns `true` for everything other than `JSON`.
+    pub fn is_for_humans(&self) -> bool {
+        match self {
+            Self::Simple => true,
+            Self::JSON => false,
+        }
+    }
+}
+
+impl FromArgValue for OutputFormat {
+    fn from_arg_value(value: &str) -> Result<Self, String> {
+        match value {
+            "json" => Ok(Self::JSON),
+            "simple" => Ok(Self::Simple),
+            _ => Err(String::from("Expected json/simple")),
+        }
+    }
 }
 
 pub fn parse() -> Args {
