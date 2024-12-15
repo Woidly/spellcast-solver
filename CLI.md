@@ -66,7 +66,7 @@ Possible values:
 
 - `simple`  
    Simple output format that compactly prints each word in a single line.
-  It looks something like this:
+  For each word it looks something like this:
 
   > 0.  mar**s**h**ma**llowy (+44pts, +0 gems, -3 swaps)
 
@@ -75,4 +75,41 @@ Possible values:
 
 - `json`  
    JSON output format that is intended for automation purposes.
-  Work in progress!
+  It looks something like this (I prettied it for clarity, but it's compact in actual output):
+
+  ```json
+  {
+    "elapsed_ms": { "dict": 77.8, "solver": 837.0 },
+    "words": [
+      {
+        "gems_collected": 0,
+        "steps": [
+          { "swap": false, "index": 12 },
+          { "swap": false, "index": 11 },
+          { "swap": false, "index": 7 },
+          { "swap": true, "index": 1, "new_letter": "s" }
+          /* More steps here... */
+        ],
+        "score": 44,
+        "swaps_used": 3,
+        "word": "marshmallowy"
+      }
+      /* More words here... */
+    ]
+  }
+  ```
+
+  It has the following structure:
+
+  - `elapsed_ms` - time (in milliseconds) spent in different parts of the program:
+    - `dict` - time spent loading the dictionary
+    - `solver` - time spent solving the board
+  - `words` - array of top words. Each item is as follows:
+    - `gems_collected` - number of gems collected with this word
+    - `steps` - array if steps needed to play the word. Each item is as follows:
+      - `swap` - boolean indicating whether this step swaps a letter
+      - `index` - 0-based flat index of tile (`0` being top-left tile, `24` being bottom-right tile)
+      - `new_letter` - _(optional)_ if `swap` is true, single-char string indicating new letter
+    - `score` - score you'll get with this word
+    - `swaps_used` - number of swaps used
+    - `word` - string representing the actual word
