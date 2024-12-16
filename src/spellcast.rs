@@ -125,6 +125,7 @@ impl Step {
 pub struct Word {
     pub gems_collected: u8,
     pub score: u16, // Using u16 for score just in case of some miracle overflow.
+    pub sorting_score: i32,
     pub steps: Vec<Step>,
     pub swaps_used: u8,
 }
@@ -154,6 +155,12 @@ impl Word {
         Word {
             gems_collected,
             score,
+            sorting_score: (
+                // Square the score so other things do not disrupt basic sorting.
+                (score as i32).pow(2)
+                // Net gems (collected gems - gems spent on swaps).
+                + (gems_collected as i32 - (swaps_used * 3) as i32)
+            ),
             steps,
             swaps_used,
         }
@@ -201,9 +208,9 @@ impl SortedWordVec {
         let mut m;
         while l < r {
             m = (l + r) / 2;
-            if self.inner[m].score > value.score {
+            if self.inner[m].sorting_score > value.sorting_score {
                 l = m + 1;
-            } else if self.inner[m].score == value.score {
+            } else if self.inner[m].sorting_score == value.sorting_score {
                 l = m;
                 break;
             } else {
