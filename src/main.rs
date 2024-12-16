@@ -73,11 +73,33 @@ fn main() {
         args::OutputFormat::Simple => {
             for (i, word) in final_words.into_iter().enumerate().rev() {
                 println!(
-                    "{i}. {} (+{}pts, +{} gems, -{} swaps)",
+                    "{i}. {} (+{}pts, +{} gems){}",
                     word.word(&board, true, !args.no_colour),
                     word.score,
                     word.gems_collected,
-                    word.swaps_used
+                    if word.swaps_used == 0 {
+                        String::new()
+                    } else {
+                        format!(
+                            " / {}",
+                            word.steps
+                                .into_iter()
+                                .filter_map(|step| {
+                                    match step {
+                                        spellcast::Step::Normal { .. } => None,
+                                        spellcast::Step::Swap { index, new_letter } => {
+                                            Some(format!(
+                                                "{}{} -> {new_letter}",
+                                                (b'A' + (index % 5) as u8) as char,
+                                                index / 5 + 1
+                                            ))
+                                        }
+                                    }
+                                })
+                                .collect::<Vec<_>>()
+                                .join(", ")
+                        )
+                    }
                 );
             }
         }
