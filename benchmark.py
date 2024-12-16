@@ -4,22 +4,18 @@ import string
 import statistics
 import subprocess
 from collections import defaultdict
-
+from argparse import ArgumentParser
 from tqdm import tqdm
-
-# Config
-BOARD_COUNT = 100
-SOLVER_THREADS = 1
 
 
 def generate_board():
     return ''.join(random.choices(string.ascii_lowercase, k=25))
 
 
-def run_solver(swaps, board):
+def run_solver(swaps, board, solver_threads):
     cmd = [
         "./target/release/spellcast-solver",
-        "-t", str(SOLVER_THREADS),
+        "-t", str(solver_threads),
         "-s", str(swaps),
         "-b", board,
         "-f", "json",
@@ -29,13 +25,32 @@ def run_solver(swaps, board):
 
 
 def main():
-    print(f"Running benchmark for {BOARD_COUNT} boards")
+    # Parse command-line arguments
+    parser = ArgumentParser(description="Benchmark the spellcast solver.")
+    parser.add_argument(
+        "-b", "--boards", 
+        type=int, 
+        default=100, 
+        help="number of boards to generate and solve (def=100)"
+    )
+    parser.add_argument(
+        "-t", "--threads", 
+        type=int, 
+        default=1, 
+        help="number of solver threads (def=1)"
+    )
+    args = parser.parse_args()
+
+    board_count = args.boards
+    solver_threads = args.threads
+
+    print(f"Running benchmark for {board_count} boards")
     times = defaultdict(list)
     dict_times = []
 
-    for i in tqdm(range(BOARD_COUNT)):
+    for i in tqdm(range(board_count)):
         i_swaps = i % 4
-        time = run_solver(i_swaps, generate_board())
+        time = run_solver(i_swaps, generate_board(), solver_threads)
         times[i_swaps].append(time['solver'])
         dict_times.append(time['dict'])
 
