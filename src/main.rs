@@ -1,5 +1,6 @@
 mod args;
 mod dictionary;
+mod output;
 mod spellcast;
 mod utils;
 
@@ -41,67 +42,11 @@ fn main() {
         final_words.push(word);
     }
     match args.format {
-        args::OutputFormat::JSON => {
-            // Totally real JSON serialisation!!1!
-            // At least it has no dependencies...
-            println!(
-                r#"{{"elapsed_ms":{{"dict":{elapsed_dict:.1},"solver":{elapsed_solver:.1}}},"words":[{}]}}"#,
-                final_words
-                    .into_iter()
-                    .map(|word| format!(
-                        r#"{{"gems_collected":{},"steps":[{}],"score":{},"swaps_used":{},"word":{:?}}}"#,
-                        word.gems_collected,
-                        (&word.steps)
-                            .into_iter()
-                            .map(|step| match step {
-                                spellcast::Step::Normal { index } =>
-                                    format!(r#"{{"swap":false,"index":{index}}}"#),
-                                spellcast::Step::Swap { index, new_letter } => format!(
-                                    r#"{{"swap":true,"index":{index},"new_letter":"{new_letter}"}}"#
-                                ),
-                            })
-                            .collect::<Vec<_>>()
-                            .join(","),
-                        word.score,
-                        word.swaps_used,
-                        word.word(&board, false, false)
-                    ))
-                    .collect::<Vec<_>>()
-                    .join(",")
-            );
+        output::OutputFormat::JSON => {
+            output::json_output(&board, final_words, elapsed_dict, elapsed_solver);
         }
-        args::OutputFormat::Simple => {
-            for (i, word) in final_words.into_iter().enumerate().rev() {
-                println!(
-                    "{i}. {} (+{}pts, +{} gems){}",
-                    word.word(&board, true, !args.no_colour),
-                    word.score,
-                    word.gems_collected,
-                    if word.swaps_used == 0 {
-                        String::new()
-                    } else {
-                        format!(
-                            " / {}",
-                            word.steps
-                                .into_iter()
-                                .filter_map(|step| {
-                                    match step {
-                                        spellcast::Step::Normal { .. } => None,
-                                        spellcast::Step::Swap { index, new_letter } => {
-                                            Some(format!(
-                                                "{}{} -> {new_letter}",
-                                                (b'A' + (index % 5) as u8) as char,
-                                                index / 5 + 1
-                                            ))
-                                        }
-                                    }
-                                })
-                                .collect::<Vec<_>>()
-                                .join(", ")
-                        )
-                    }
-                );
-            }
+        output::OutputFormat::Simple => {
+            output::simple_output(&board, final_words, args.no_colour);
         }
     }
 }

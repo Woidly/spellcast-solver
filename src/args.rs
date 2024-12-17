@@ -1,6 +1,6 @@
 use argh::{FromArgValue, FromArgs};
 
-use crate::spellcast::Board;
+use crate::{output::OutputFormat, spellcast::Board};
 
 #[derive(FromArgs, Debug)]
 /// Spellcast solver CLI.
@@ -45,26 +45,6 @@ pub struct Args {
         default = "OutputFormat::Simple"
     )]
     pub format: OutputFormat,
-}
-
-/// Enum used for storing output format.
-#[derive(Debug)]
-pub enum OutputFormat {
-    /// Simple output format that compactly prints each word in a single line.
-    Simple,
-    /// JSON output format that is intended for automation purposes.
-    JSON,
-}
-
-impl OutputFormat {
-    /// Returns whether format is intended for humans.
-    /// As of now, it returns `true` for everything other than `JSON`.
-    pub fn is_for_humans(&self) -> bool {
-        match self {
-            Self::Simple => true,
-            Self::JSON => false,
-        }
-    }
 }
 
 impl FromArgValue for OutputFormat {
