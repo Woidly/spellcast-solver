@@ -1,0 +1,10 @@
+// ==UserScript==
+// @name         Spellcast solver
+// @connect      localhost
+// @version      0.0.1
+// @description  The one and only Spellcast automation tool
+// @author       Woidly
+// @match        https://852509694341283871.discordsays.com/*
+// @grant        unsafeWindow
+// @grant        GM.xmlHttpRequest
+// ==/UserScript==
