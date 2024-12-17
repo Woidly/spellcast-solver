@@ -278,12 +278,13 @@ fn solver(board: &Board, steps: &mut Vec<Step>, node: &Node, swaps: u8, words: &
 /// Wrapper that creates initial [solver] calls and handles multithreading.
 /// For each tile initial calls consist of `Step::Normal` for original letters and (if swaps are available) `Step::Swap` for rest of letters.
 /// It takes ownership of board because of how multithreading is implemented, but it is returned back alongside with solving results.
-/// Returned words are automatically sorted thanks to [SortedWordVec].
+/// Returned words are automatically sorted thanks to [SortedWordVec], duplicates are removed. only up to move_count moves are returned.
 pub fn solver_wrapper(
     board: Board,
     swaps: u8,
     thread_count: u8,
     dictionary: &'static Vec<(char, Node)>,
+    move_count: u8,
 ) -> (Vec<Word>, Board) {
     let mut calls = vec![];
     let mut words = SortedWordVec::new();
@@ -308,39 +309,57 @@ pub fn solver_wrapper(
             }
         }
     }
-    if thread_count <= 1 {
-        for mut call in calls {
-            solver(&board, &mut call.0, call.1, call.2, &mut words);
-        }
-        return (words.inner, board);
-    } else {
-        // Nope, won't be doing Arc (tested it, performance with Arc sucks).
-        // Unsafe code is completely safe, because all threads using board_ref are join()ed before taking back the board.
-        let board_ptr = Box::into_raw(Box::new(board));
-        let mut threads = vec![];
-        let chunk_size = (calls.len() + thread_count as usize - 1) / thread_count as usize;
-        {
-            let board_ref: &'static Board = unsafe { &*board_ptr };
-            while !calls.is_empty() {
-                let chunk = calls
-                    .drain(..chunk_size.min(calls.len()))
-                    .collect::<Vec<_>>();
-                threads.push(std::thread::spawn(move || {
-                    let mut thread_words = SortedWordVec::new();
-                    for mut call in chunk {
-                        solver(&board_ref, &mut call.0, call.1, call.2, &mut thread_words);
-                    }
-                    thread_words
-                }))
+    let (words, board) = {
+        if thread_count <= 1 {
+            for mut call in calls {
+                solver(&board, &mut call.0, call.1, call.2, &mut words);
             }
-            for thread in threads {
-                if let Ok(thread_words) = thread.join() {
-                    for word in thread_words.inner {
-                        words.push(word);
+            (words.inner, board)
+        } else {
+            // Nope, won't be doing Arc (tested it, performance with Arc sucks).
+            // Unsafe code is completely safe, because all threads using board_ref are join()ed before taking back the board.
+            let board_ptr = Box::into_raw(Box::new(board));
+            let mut threads = vec![];
+            let chunk_size = (calls.len() + thread_count as usize - 1) / thread_count as usize;
+            {
+                let board_ref: &'static Board = unsafe { &*board_ptr };
+                while !calls.is_empty() {
+                    let chunk = calls
+                        .drain(..chunk_size.min(calls.len()))
+                        .collect::<Vec<_>>();
+                    threads.push(std::thread::spawn(move || {
+                        let mut thread_words = SortedWordVec::new();
+                        for mut call in chunk {
+                            solver(&board_ref, &mut call.0, call.1, call.2, &mut thread_words);
+                        }
+                        thread_words
+                    }))
+                }
+                for thread in threads {
+                    if let Ok(thread_words) = thread.join() {
+                        for word in thread_words.inner {
+                            words.push(word);
+                        }
                     }
                 }
             }
+            (words.inner, unsafe { *Box::from_raw(board_ptr) })
         }
-        return (words.inner, unsafe { *Box::from_raw(board_ptr) });
+    };
+    let mut existing_words = vec![];
+    let mut counter = 0;
+    let mut final_words = vec![];
+    for word in words {
+        if counter >= move_count {
+            break;
+        }
+        let word_str = word.word(&board, false, false);
+        if existing_words.contains(&word_str) {
+            continue;
+        }
+        counter += 1;
+        existing_words.push(word_str);
+        final_words.push(word);
     }
+    return (final_words, board);
 }
