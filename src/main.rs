@@ -32,6 +32,9 @@ fn main() {
         println!("Solved the board in {elapsed_solver:.1}ms",);
     }
     match args.format {
+        output::OutputFormat::Board => {
+            output::board_output(&board, words);
+        }
         output::OutputFormat::JSON => {
             output::json_output(&board, words, elapsed_dict, elapsed_solver);
         }

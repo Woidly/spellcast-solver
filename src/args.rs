@@ -48,6 +48,7 @@ pub struct Args {
 impl FromArgValue for OutputFormat {
     fn from_arg_value(value: &str) -> Result<Self, String> {
         match value {
+            "board" => Ok(Self::Board),
             "json" => Ok(Self::JSON),
             "simple" => Ok(Self::Simple),
             _ => Err(String::from("Expected json/simple")),
