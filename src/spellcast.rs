@@ -103,7 +103,7 @@ pub enum Step {
 impl Step {
     /// Returns `self.index`.
     /// Just a convenience function that handles matching and dereferencing.
-    fn index(&self) -> i8 {
+    pub fn index(&self) -> i8 {
         match self {
             Self::Normal { index } => *index,
             Self::Swap { index, .. } => *index,
@@ -113,7 +113,7 @@ impl Step {
     /// Returns the letter represented by this Step.
     /// For Normal, it's letter from board tile @ `self.index`.
     /// For Swap, it's `self.new_letter`.
-    fn letter(&self, board: &Board) -> char {
+    pub fn letter(&self, board: &Board) -> char {
         match self {
             Self::Normal { index } => board.tiles[*index as usize].letter,
             Self::Swap { new_letter, .. } => *new_letter,
