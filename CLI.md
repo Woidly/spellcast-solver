@@ -59,7 +59,7 @@ Output format. Defaults to `simple`.
 Possible values:
 
 - `simple`  
-   Simple output format that prints each word compactly on a single line.
+  Simple output format that prints each word compactly on a single line.
   For each word it looks something like this:
 
   > ${\color{white} \text{0. mar} \color{red} \text{s} \color{white} \text{h} \color{red} \text{ma} \color{white} \text{llowy (+44pts, +0 gems) / B1 -> s, B2 -> m, C1 -> a}}$
@@ -69,7 +69,7 @@ Possible values:
   Words are shown in reverse order (the best one being at the bottom of terminal with index 0).
 
 - `json`  
-   JSON output format that is intended for automation purposes.
+  JSON output format that is intended for automation purposes.
   It looks something like this (I prettied it for clarity, but it's compact in actual output):
 
   ```json
@@ -108,3 +108,27 @@ Possible values:
     - `score` - score you'll get with this word
     - `swaps_used` - number of swaps used
     - `word` - string representing the actual word
+
+- `board`  
+  Board output format that prints order of steps on board.
+  For each word it looks something like this:
+
+  > ```===============|0|===============
+  > #   A    B    C    D    E
+  >   +----+----+----+----+----+
+  > 1 |h  4|a  6|l  7|    |    | marshmallowy
+  >   +----+----+----+----+----+
+  > 2 |m  5|s  3|r  2|l  8|    | +44 pts, +0 gems
+  >   +----+----+----+----+----+
+  > 3 |    |a  1|m  0|w 10|o  9| B2 -> s
+  >   +----+----+----+----+----+
+  > 4 |    |    |    |y 11|    | A2 -> m
+  >   +----+----+----+----+----+
+  > 5 |    |    |    |    |    | B1 -> a
+  >   +----+----+----+----+----+
+  > ```
+
+  Swapped letters will be coloured red. Step number will be coloured green.  
+  If word has swapped letters, they'll also be printed on the right of board in format `A1 -> x`, `x` being new letter and `A1` being chess-like tile notation with letter for column and number for row (e.g. `A1` is top-left tile and `E5` is bottom-right tile).  
+  Boards are shown in reverse order (the best one being at the bottom of terminal with index 0).  
+  Note that step number is 0-based.
