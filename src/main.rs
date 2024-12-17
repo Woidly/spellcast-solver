@@ -36,7 +36,7 @@ fn main() {
             output::json_output(&board, words, elapsed_dict, elapsed_solver);
         }
         output::OutputFormat::Simple => {
-            output::simple_output(&board, words, args.no_colour);
+            output::simple_output(&board, words);
         }
     }
 }

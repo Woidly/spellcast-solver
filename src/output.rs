@@ -43,7 +43,7 @@ pub fn json_output(board: &Board, words: Vec<Word>, elapsed_dict: f64, elapsed_s
                     .join(","),
                 word.score,
                 word.swaps_used,
-                word.word(&board, false, false)
+                word.word(&board, false)
             ))
             .collect::<Vec<_>>()
             .join(",")
@@ -51,11 +51,11 @@ pub fn json_output(board: &Board, words: Vec<Word>, elapsed_dict: f64, elapsed_s
 }
 
 /// Simple output format that prints each word compactly on a single line.
-pub fn simple_output(board: &Board, words: Vec<Word>, no_colour: bool) {
+pub fn simple_output(board: &Board, words: Vec<Word>) {
     for (i, word) in words.into_iter().enumerate().rev() {
         println!(
             "{i}. {} (+{}pts, +{} gems){}",
-            word.word(&board, true, !no_colour),
+            word.word(&board, true),
             word.score,
             word.gems_collected,
             if word.swaps_used == 0 {
