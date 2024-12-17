@@ -15,6 +15,12 @@ const CORS: ResponseInit = {
 
 Bun.serve({
   async fetch(req: Request): Promise<Response> {
+    let date = new Date();
+    console.log(
+      `[${date.getHours().toString().padStart(2, "0")}:\
+${date.getMinutes().toString().padStart(2, "0")}:\
+${date.getSeconds().toString().padStart(2, "0")}] ${req.method} ${req.url}`
+    );
     if (req.method.toUpperCase() != "POST") {
       return new Response(
         "Server is up! To solve the board, make POST request with 'board', 'swaps' and 'threads' query params",
