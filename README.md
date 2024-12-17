@@ -9,6 +9,7 @@ This project is inspired by WintrCat's [Spellcast solver](https://github.com/Win
 - Fast and efficient solver core that supports multithreading
 - Support for all standard game features (DL/TL/2x, 0-3 swaps, gems, frozen tiles)
 - Simple CLI for running the solver (you can learn more in [CLI.md](CLI.md))
+- Userscript that automatically plays Spellcast (WIP, you can learn more in [automatic/](automatic/) directory)
 
 ## Setup
 
