@@ -20,33 +20,23 @@ fn main() {
         println!("Loaded the dictionary in {elapsed_dict:.1}ms",)
     }
     let clock = std::time::Instant::now();
-    let (words, board) =
-        spellcast::solver_wrapper(args.board, args.swaps, args.threads, dictionary);
+    let (words, board) = spellcast::solver_wrapper(
+        args.board,
+        args.swaps,
+        args.threads,
+        dictionary,
+        args.move_count,
+    );
     let elapsed_solver = clock.elapsed().as_secs_f64() * 1000.;
     if args.format.is_for_humans() {
         println!("Solved the board in {elapsed_solver:.1}ms",);
     }
-    let mut existing_words = vec![];
-    let mut counter = 0;
-    let mut final_words = vec![];
-    for word in words {
-        if counter >= args.move_count {
-            break;
-        }
-        let word_str = word.word(&board, false, false);
-        if existing_words.contains(&word_str) {
-            continue;
-        }
-        counter += 1;
-        existing_words.push(word_str);
-        final_words.push(word);
-    }
     match args.format {
         output::OutputFormat::JSON => {
-            output::json_output(&board, final_words, elapsed_dict, elapsed_solver);
+            output::json_output(&board, words, elapsed_dict, elapsed_solver);
         }
         output::OutputFormat::Simple => {
-            output::simple_output(&board, final_words, args.no_colour);
+            output::simple_output(&board, words, args.no_colour);
         }
     }
 }
