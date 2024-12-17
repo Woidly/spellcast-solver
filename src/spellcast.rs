@@ -167,16 +167,12 @@ impl Word {
     }
 
     /// Returns actual word string.
-    pub fn word(&self, board: &Board, show_swaps: bool, colour: bool) -> String {
+    pub fn word(&self, board: &Board, show_swaps: bool) -> String {
         let mut buf = String::new();
         for step in &self.steps {
             if show_swaps {
                 if let Step::Swap { new_letter, .. } = step {
-                    buf += &if colour {
-                        format!("{}{}{}", RED, new_letter, RESET)
-                    } else {
-                        format!("[{}]", new_letter)
-                    };
+                    buf += &format!("{}{}{}", RED, new_letter, RESET);
                     continue;
                 }
             }
@@ -353,7 +349,7 @@ pub fn solver_wrapper(
         if counter >= move_count {
             break;
         }
-        let word_str = word.word(&board, false, false);
+        let word_str = word.word(&board, false);
         if existing_words.contains(&word_str) {
             continue;
         }
