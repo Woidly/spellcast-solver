@@ -1,7 +1,7 @@
 # CLI documentation
 
 ```
-Usage: spellcast-solver [-d <dictionary>] [-t <threads>] -b <board> [-c <move-count>] [-s <swaps>] [--no-colour] [-f <format>]
+Usage: spellcast-solver [-d <dictionary>] [-t <threads>] -b <board> [-c <move-count>] [-s <swaps>] [-f <format>]
 
 Spellcast solver CLI. You can learn more about arguments in CLI.md.
 
@@ -11,7 +11,6 @@ Options:
   -b, --board       board string
   -c, --move-count  number of top moves to show (def=5)
   -s, --swaps       number of swaps to consider (def=0)
-  --no-colour       disable colours in output
   -f, --format      output format (def=simple)
   --help            display usage information
 ```
@@ -54,11 +53,6 @@ However, you can (and will) get fewer moves than this number (especially with lo
 Number of swaps to consider. Defaults to `0`.
 Basically a number of gems you currently have divided by 3 and rounded down.
 
-### `--no-colour`
-
-Whether to disable colours in output. It's a switch, therefore it's `false` (colours are enabled) unless it's specified.
-As of now, colours are used only to highlight which letters have been swapped (in red). If colours are disabled, swapped letters will be put in \[square brackets\] instead.
-
 ### `-f`/`--format`
 
 Output format. Defaults to `simple`.
@@ -70,7 +64,7 @@ Possible values:
 
   > 0.  mar**s**h**ma**llowy (+44pts, +0 gems) / B1 -> s, B2 -> m, C1 -> a
 
-  Swapped letters (shown here in bold) will either be coloured red or (with `--no-colour`) put in \[square brackets\].  
+  Swapped letters (shown here in bold) will either be coloured red.
   If word has swapped letters, they'll also be printed after / in format `A1 -> x`, `x` being new letter and `A1` being chess-like tile notation with letter for column and number for row (e.g. `A1` is top-left tile and `F5` is bottom-right tile).  
   Words are shown in reverse order (the best one being at the bottom of terminal with index 0).
 
