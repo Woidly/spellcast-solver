@@ -62,10 +62,10 @@ Possible values:
    Simple output format that prints each word compactly on a single line.
   For each word it looks something like this:
 
-  > 0.  mar**s**h**ma**llowy (+44pts, +0 gems) / B1 -> s, B2 -> m, C1 -> a
+  > ${\color{white} \text{0. mar} \color{red} \text{s} \color{white} \text{h} \color{red} \text{ma} \color{white} \text{llowy (+44pts, +0 gems) / B1 -> s, B2 -> m, C1 -> a}}$
 
-  Swapped letters (shown here in bold) will either be coloured red.
-  If word has swapped letters, they'll also be printed after / in format `A1 -> x`, `x` being new letter and `A1` being chess-like tile notation with letter for column and number for row (e.g. `A1` is top-left tile and `F5` is bottom-right tile).  
+  Swapped letters will be coloured red.
+  If word has swapped letters, they'll also be printed after / in format `A1 -> x`, `x` being new letter and `A1` being chess-like tile notation with letter for column and number for row (e.g. `A1` is top-left tile and `E5` is bottom-right tile).  
   Words are shown in reverse order (the best one being at the bottom of terminal with index 0).
 
 - `json`  
