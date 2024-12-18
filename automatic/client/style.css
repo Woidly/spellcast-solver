@@ -32,7 +32,12 @@
   height: 100%;
 }
 
+.WS-overlay > div {
+  display: flex;
+}
+
 .WS-overlay span {
   font-weight: bold;
   color: black;
+  margin-right: 5px;
 }

@@ -14,6 +14,10 @@ function stringifyRawTile(raw: TileData, double: boolean): string {
   );
 }
 
+export function checkConnection(): Promise<string> {
+  return httpRequest(SERVER, "GET")[0];
+}
+
 export function stringifyRawBoard(raw: BoardData): string {
   let board: (TileData | null)[][] = Array(5)
     .fill(null)
