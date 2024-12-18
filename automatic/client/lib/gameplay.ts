@@ -84,8 +84,12 @@ const GAMEPLAY = new (class GlobalGameplay {
   async makeSwap(index: number, letter: string) {
     let message = `Swapping tile ${index} to ${letter}...`;
     this.clickSprite(this.game.spellbook.powerupButtons.CHANGE);
-    await awaitWrapper(sleep(100), message);
     let tile = this.getTileSprite(index);
+    // Apparently tile.alpha becomes 0 when it starts shaking and goes back to 1 only when swap is complete.
+    await awaitWrapper(
+      waitForValue(() => tile.alpha == 0, 10),
+      message
+    );
     this.clickSprite(tile);
     let parent = this.game.parent?.parent;
     // It should never happen, so if it does, let's just throw the error.
@@ -96,7 +100,6 @@ const GAMEPLAY = new (class GlobalGameplay {
         message
       )
     );
-    // Apparently tile.alpha becomes 0 when it starts shaking and goes back to 1 only when swap is complete.
     await awaitWrapper(
       waitForValue(() => tile.alpha == 1, 10),
       message
