@@ -1,0 +1,38 @@
+.WS-root {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #111c;
+  color: white;
+}
+
+.WS-container {
+  margin: 5px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.WS-credits span {
+  color: #a0f;
+}
+
+.WS-centre {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.WS-overlay {
+  background: #fffc;
+  width: 100%;
+  height: 100%;
+}
+
+.WS-overlay span {
+  font-weight: bold;
+  color: black;
+}

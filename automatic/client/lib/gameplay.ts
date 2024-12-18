@@ -1,6 +1,7 @@
 import { down, moveTo, up } from "./input";
 import { solve, stringifyRawBoard } from "./solver";
 import { type Game, GameState, type Sprite, type SwapLetterButton, type Vec2 } from "./types/extern";
+import { UI } from "./ui";
 import { awaitWrapper, sleep, waitForValue } from "./utils";
 
 /**
@@ -138,6 +139,7 @@ const GAMEPLAY = new (class GlobalGameplay {
     unsafeWindow._game = this.game;
     //@ts-ignore
     unsafeWindow._gg = this;
+    UI.hideOverlay();
     if (this.isBusy) return;
     switch (game.currentGameState) {
       case GameState.MENU:
