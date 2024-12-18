@@ -1,1 +1,3 @@
-console.log("Hello, world!");
+import { hookGame } from "./lib/gameplay";
+
+hookGame();
