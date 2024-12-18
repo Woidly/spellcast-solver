@@ -13,6 +13,16 @@
   justify-content: space-between;
   flex-direction: row;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.WS-config {
+  scale: 0.7;
+  margin: -7px;
+}
+
+.WS-config input[type="number"] {
+  width: 3em;
 }
 
 .WS-status span,

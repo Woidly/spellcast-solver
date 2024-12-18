@@ -14,7 +14,12 @@ function createElement<T extends keyof HTMLElementTagNameMap>(
   return parent.appendChild(document.createElement(tagName));
 }
 
+const DEFAULTS = {
+  threads: window?.navigator?.hardwareConcurrency || 8,
+};
+
 export const UI = new (class UI {
+  threadsInput: HTMLInputElement;
   status: HTMLDivElement;
   statusText: HTMLSpanElement;
   statusButton: HTMLButtonElement;
@@ -32,7 +37,16 @@ export const UI = new (class UI {
     container.className = "WS-container";
     // Config
     let configContainer = createElement(container, "div");
-    configContainer.textContent = "TODO: Add config";
+    configContainer.className = "WS-config";
+    // -> Thread count
+    let threadsLabel = createElement(configContainer, "label");
+    let threadsInput = createElement(threadsLabel, "input");
+    threadsInput.type = "number";
+    threadsInput.min = "1";
+    threadsInput.max = "255";
+    threadsInput.step = "1";
+    threadsInput.onchange = this.saveConfig.bind(this);
+    threadsLabel.appendChild(document.createTextNode(" threads"));
     // Status
     let status = createElement(container, "div");
     status.className = "WS-status";
@@ -54,12 +68,48 @@ export const UI = new (class UI {
     let overlayButton = createElement(overlayCentre, "button");
     overlayButton.style.display = "none";
     // Assign all the stuff
+    this.threadsInput = threadsInput;
     this.status = status;
     this.statusText = statusText;
     this.statusButton = statusButton;
     this.overlay = overlay;
     this.overlayText = overlayText;
     this.overlayButton = overlayButton;
+    
+    this.loadConfig();
+  }
+
+  loadConfig() {
+    let threads = DEFAULTS.threads;
+    try {
+      let threadsValue = localStorage.getItem("WS-threads");
+      if (threadsValue) {
+        let parsed = parseInt(threadsValue);
+        if (!Number.isNaN(parsed) && 1 <= parsed && parsed <= 255) {
+          threads = parsed;
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to load the config from localStorage", e);
+    }
+    this.threadsInput.value = threads.toString();
+  }
+
+  saveConfig() {
+    try {
+      localStorage.setItem("WS-threads", this.threadsInput.value);
+    } catch (e) {
+      console.warn("Failed to save the config to localStorage", e);
+    }
+  }
+
+  getThreads(): number {
+    let threads = DEFAULTS.threads;
+    let parsed = parseInt(this.threadsInput.value);
+    if (!Number.isNaN(parsed) && 1 <= parsed && parsed <= 255) {
+      threads = parsed;
+    }
+    return threads;
   }
 
   hideOverlay() {

@@ -118,7 +118,7 @@ const GAMEPLAY = new (class GlobalGameplay {
       solve(
         stringifyRawBoard(this.game.board.boardData),
         Math.floor(this.game.spellbook.manaCounter.manaCount / 3),
-        12
+        UI.getThreads()
       ),
       "Solving the board..."
     );
