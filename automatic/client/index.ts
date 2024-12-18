@@ -10,7 +10,8 @@ function doCheckConnection() {
   checkConnection()
     .then(() => {
       hookGame();
-      UI.showOverlay("Waiting for game hook...");
+      UI.hideOverlay();
+      UI.showStatus("Waiting for game hook...");
     })
     .catch(() => {
       UI.showOverlay("Connection to the server failed!", doCheckConnection, "Retry");
