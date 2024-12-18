@@ -19,6 +19,8 @@
 .WS-config {
   scale: 0.7;
   margin: -7px;
+  display: flex;
+  flex-direction: column;
 }
 
 .WS-config input[type="number"] {
