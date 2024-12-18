@@ -13,6 +13,11 @@ export type Vec2 = {
 
 /** Base type for every game object */
 export type Sprite = {
+  /**
+   * Non-global alpha.
+   * I have no clue how it is different from globalAlpha.
+   */
+  alpha: number;
   /** Position of this sprite's centre relative to its parent */
   position: Vec2;
   /** Scale of this sprite */

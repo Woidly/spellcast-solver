@@ -1,6 +1,6 @@
 import { down, moveTo, up } from "./input";
 import { solve, stringifyRawBoard } from "./solver";
-import { type Game, GameState, type Sprite, type Vec2 } from "./types/extern";
+import { type Game, GameState, type Sprite, type SwapLetterButton, type Vec2 } from "./types/extern";
 import { awaitWrapper, sleep, waitForValue } from "./utils";
 
 /**
@@ -20,6 +20,29 @@ function getSpriteCoords(sprite: Sprite): Vec2 {
     parent = parent.parent;
   }
   return { x, y };
+}
+
+/**
+ * Waits for a sprite to appear.
+ * @param root A root sprite children of which may contain the needed sprite
+ * @param predicate Predicate that checks whether sprite is one we're looking for
+ * @param interval Interval passed to waitForValue
+ * @returns Promise, that resolves with sprite when it's found
+ */
+function waitForSprite(
+  root: Sprite,
+  predicate: (x: Sprite) => boolean,
+  interval: number
+): [Promise<Sprite>, () => void] {
+  function recursion(parent: Sprite, limit: number = 5): Sprite | void {
+    if (limit <= 0) return;
+    for (let child of parent.children) {
+      if (predicate(child)) return child;
+      let result = recursion(child, limit - 1);
+      if (result) return result;
+    }
+  }
+  return waitForValue(() => recursion(root), interval);
 }
 
 const GAMEPLAY = new (class GlobalGameplay {
@@ -51,12 +74,33 @@ const GAMEPLAY = new (class GlobalGameplay {
     return tile;
   }
 
+  clickSprite(sprite: Sprite) {
+    this.moveToSprite(sprite);
+    down(this.canvas);
+    up(this.canvas);
+  }
+
+  async makeSwap(index: number, letter: string) {
+    this.clickSprite(this.game.spellbook.powerupButtons.CHANGE);
+    await awaitWrapper(sleep(100));
+    let tile = this.getTileSprite(index);
+    this.clickSprite(tile);
+    let parent = this.game.parent?.parent;
+    // It should never happen, so if it does, let's just throw the error.
+    if (!parent) throw new Error("Failed to get game.parent.parent");
+    this.clickSprite(
+      await awaitWrapper(waitForSprite(parent, (x) => (x as SwapLetterButton)?.config?.key == letter, 25))
+    );
+    // Apparently tile.alpha becomes 0 when it starts shaking and goes back to 1 only when swap is complete.
+    await awaitWrapper(waitForValue(() => tile.alpha == 1, 10));
+  }
+
   // TODO: Add error handler for all the stuff that happens in play() (it's mostly interrupt errors).
   async play(isMyTurn: boolean) {
     if (!isMyTurn) return;
     this.isBusy = true;
     // First isMyTurn=true in  usually happens before board is ready.
-    await awaitWrapper(waitForValue(() => Object.values(this.game.board.boardData.letters).length == 25));
+    await awaitWrapper(waitForValue(() => Object.values(this.game.board.boardData.letters).length == 25, 10));
     // Just in case board scale animation is still playing.
     let sleepMaybe = sleep(200);
     let result = await awaitWrapper(
@@ -69,13 +113,15 @@ const GAMEPLAY = new (class GlobalGameplay {
       // TODO: Add ability to retry. Or board shuffle.
       return console.error("No solution found");
     }
+    for (let step of best.steps) {
+      if (step.swap && step.new_letter) {
+        await this.makeSwap(step.index, step.new_letter.toUpperCase());
+      }
+    }
     for (let _index in best.steps) {
       // Thanks JavaScript for stupid string array index.
       let index = Number(_index);
       let step = best.steps[index];
-      if (step.swap) {
-        console.error("Swap moves aren't implemented yet"); // TODO
-      }
       this.moveToSprite(this.getTileSprite(step.index));
       if (index == 0) {
         down(this.canvas);
