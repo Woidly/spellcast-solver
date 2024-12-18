@@ -79,6 +79,8 @@ export enum GameState {
 
 /** This single object carries the whole thing */
 export type Game = Sprite & {
+  /** @returns Whether we can actually play the word */
+  allowSubmitWord(): boolean;
   /** Board sprite */
   board: {
     boardData: BoardData;
