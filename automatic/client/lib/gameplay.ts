@@ -114,12 +114,9 @@ const GAMEPLAY = new (class GlobalGameplay {
     );
     // Just in case board scale animation is still playing.
     let sleepMaybe = sleep(200);
+    let swaps = Math.floor(this.game.spellbook.manaCounter.manaCount / 3);
     let result = await awaitWrapper(
-      solve(
-        stringifyRawBoard(this.game.board.boardData),
-        Math.floor(this.game.spellbook.manaCounter.manaCount / 3),
-        UI.getThreads()
-      ),
+      solve(stringifyRawBoard(this.game.board.boardData), swaps, swaps > 0 ? UI.getThreads() : 1),
       "Solving the board..."
     );
     // Not awaiting it immediately, since time may have already been passed while solver was running.
