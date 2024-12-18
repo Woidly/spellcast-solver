@@ -89,6 +89,8 @@ export type Game = Sprite & {
   /** Board sprite */
   board: {
     boardData: BoardData;
+    /** Whether the board is locked */
+    isLocked: boolean;
     /** Mapping of tile id to tile sprite */
     letterPieces: Record<
       number,

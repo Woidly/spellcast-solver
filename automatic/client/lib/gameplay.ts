@@ -2,7 +2,7 @@ import { down, moveTo, up } from "./input";
 import { solve, stringifyRawBoard } from "./solver";
 import { type Game, GameState, type Sprite, type SwapLetterButton, type Vec2 } from "./types/extern";
 import { UI } from "./ui";
-import { awaitWrapper, sleep, waitForValue } from "./utils";
+import { awaitWrapper, waitForValue } from "./utils";
 
 /**
  * Traverses sprite's parents to determine it's position.
@@ -116,14 +116,13 @@ const GAMEPLAY = new (class GlobalGameplay {
       "Waiting for the board..."
     );
     // Just in case board scale animation is still playing.
-    let sleepMaybe = sleep(200);
+    let waitMaybe = waitForValue(() => !this.game.board.isLocked, 10);
     let swaps = Math.floor(this.game.spellbook.manaCounter.manaCount / 3);
     let result = await awaitWrapper(
       solve(stringifyRawBoard(this.game.board.boardData), swaps, swaps > 0 ? UI.getThreads() : 1),
       "Solving the board..."
     );
-    // Not awaiting it immediately, since time may have already been passed while solver was running.
-    await awaitWrapper(sleepMaybe, "Waiting...");
+    await awaitWrapper(waitMaybe, "Waiting for board to unlock...");
     let best = result.words[0];
     if (!best) {
       // TODO: Add ability to retry. Or board shuffle.
