@@ -1,3 +1,4 @@
+import { solve, stringifyRawBoard } from "./solver";
 import type { Game } from "./types/extern";
 
 function hookCallback(this: Game, isMyTurn: boolean) {
@@ -12,6 +13,16 @@ function hookCallback(this: Game, isMyTurn: boolean) {
     //@ts-ignore
     unsafeWindow._game = this;
     console.log("isMyTurn updated:", isMyTurn);
+    if (isMyTurn) {
+      setTimeout(() => {
+        let [promise, _] = solve(
+          stringifyRawBoard(this.board.boardData),
+          Math.floor(this.spellbook.manaCounter.manaCount / 3),
+          12
+        );
+        promise.then((x) => console.log("Solved", x)).catch((e) => console.error("Solver error", e));
+      }, 500);
+    }
   }
 }
 

@@ -64,6 +64,13 @@ export type TileData = TilePos & {
   // Position of tile with word multiplier is stored in board.boardData.
 };
 
+export type BoardData = {
+  /** Mapping of tile id to tile data */
+  letters: Record<number, TileData>;
+  /** Position of tile with 2x multiplier */
+  wordMultiplierPosition: TilePos | null;
+};
+
 export enum GameState {
   MENU = 1,
   GAME = 2,
@@ -74,12 +81,7 @@ export enum GameState {
 export type Game = Sprite & {
   /** Board sprite */
   board: {
-    boardData: {
-      /** Mapping of tile id to tile data */
-      letters: Record<number, TileData>;
-      /** Position of tile with 2x multiplier */
-      wordMultiplierPosition: TilePos | null;
-    };
+    boardData: BoardData;
     /** Mapping of tile id to tile sprite */
     letterPieces: Record<
       number,
