@@ -82,33 +82,48 @@ const GAMEPLAY = new (class GlobalGameplay {
   }
 
   async makeSwap(index: number, letter: string) {
+    let message = `Swapping tile ${index} to ${letter}...`;
     this.clickSprite(this.game.spellbook.powerupButtons.CHANGE);
-    await awaitWrapper(sleep(100));
+    await awaitWrapper(sleep(100), message);
     let tile = this.getTileSprite(index);
     this.clickSprite(tile);
     let parent = this.game.parent?.parent;
     // It should never happen, so if it does, let's just throw the error.
     if (!parent) throw new Error("Failed to get game.parent.parent");
     this.clickSprite(
-      await awaitWrapper(waitForSprite(parent, (x) => (x as SwapLetterButton)?.config?.key == letter, 25))
+      await awaitWrapper(
+        waitForSprite(parent, (x) => (x as SwapLetterButton)?.config?.key == letter, 25),
+        message
+      )
     );
     // Apparently tile.alpha becomes 0 when it starts shaking and goes back to 1 only when swap is complete.
-    await awaitWrapper(waitForValue(() => tile.alpha == 1, 10));
+    await awaitWrapper(
+      waitForValue(() => tile.alpha == 1, 10),
+      message
+    );
   }
 
   // TODO: Add error handler for all the stuff that happens in play() (it's mostly interrupt errors).
   async play(isMyTurn: boolean) {
-    if (!isMyTurn) return;
+    if (!isMyTurn) return UI.showStatus("Not our turn");
     this.isBusy = true;
     // First isMyTurn=true in  usually happens before board is ready.
-    await awaitWrapper(waitForValue(() => Object.values(this.game.board.boardData.letters).length == 25, 10));
+    await awaitWrapper(
+      waitForValue(() => Object.values(this.game.board.boardData.letters).length == 25, 10),
+      "Waiting for the board..."
+    );
     // Just in case board scale animation is still playing.
     let sleepMaybe = sleep(200);
     let result = await awaitWrapper(
-      solve(stringifyRawBoard(this.game.board.boardData), Math.floor(this.game.spellbook.manaCounter.manaCount / 3), 12)
+      solve(
+        stringifyRawBoard(this.game.board.boardData),
+        Math.floor(this.game.spellbook.manaCounter.manaCount / 3),
+        12
+      ),
+      "Solving the board..."
     );
     // Not awaiting it immediately, since time may have already been passed while solver was running.
-    await awaitWrapper(sleepMaybe);
+    await awaitWrapper(sleepMaybe, "Waiting...");
     let best = result.words[0];
     if (!best) {
       // TODO: Add ability to retry. Or board shuffle.
@@ -143,11 +158,11 @@ const GAMEPLAY = new (class GlobalGameplay {
     if (this.isBusy) return;
     switch (game.currentGameState) {
       case GameState.MENU:
-        return console.log("In menus");
+        return UI.showStatus("Idle");
       case GameState.GAME:
         return this.play(isMyTurn);
       case GameState.GAMEOVER:
-        return console.log("GG!");
+        return UI.showStatus("GG!");
     }
   }
 })();

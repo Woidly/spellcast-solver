@@ -15,6 +15,9 @@ function createElement<T extends keyof HTMLElementTagNameMap>(
 }
 
 export const UI = new (class UI {
+  status: HTMLDivElement;
+  statusText: HTMLSpanElement;
+  statusButton: HTMLButtonElement;
   overlay: HTMLDivElement;
   overlayText: HTMLSpanElement;
   overlayButton: HTMLButtonElement;
@@ -25,13 +28,19 @@ export const UI = new (class UI {
     // I wish they made framework-less JSX lol.
     let root = createElement(document.body, "div");
     root.className = "WS-root";
-    // Main thingy
     let container = createElement(root, "div");
     container.className = "WS-container";
+    // Config
     let configContainer = createElement(container, "div");
     configContainer.textContent = "TODO: Add config";
-    let statusContainer = createElement(container, "div");
-    statusContainer.textContent = "TODO: Add status";
+    // Status
+    let status = createElement(container, "div");
+    status.className = "WS-status";
+    let statusText = createElement(status, "span");
+    statusText.textContent = "Loading...";
+    let statusButton = createElement(status, "button");
+    statusButton.style.display = "none";
+    // Credits
     let creditsContainer = createElement(container, "div");
     creditsContainer.className = "WS-credits";
     creditsContainer.innerHTML = "(c) 2024 <span>Woidly</span>";
@@ -45,6 +54,9 @@ export const UI = new (class UI {
     let overlayButton = createElement(overlayCentre, "button");
     overlayButton.style.display = "none";
     // Assign all the stuff
+    this.status = status;
+    this.statusText = statusText;
+    this.statusButton = statusButton;
     this.overlay = overlay;
     this.overlayText = overlayText;
     this.overlayButton = overlayButton;
@@ -55,7 +67,7 @@ export const UI = new (class UI {
   }
 
   showOverlay(text: string, buttonCallback: (() => void) | null = null, buttonText: string = "") {
-    this.overlay.style.display = "block";
+    this.overlay.style.display = "flex";
     if (buttonCallback) {
       this.overlayButton.style.display = "block";
       this.overlayButton.textContent = buttonText;
@@ -68,5 +80,25 @@ export const UI = new (class UI {
       this.overlayButton.style.display = "none";
     }
     this.overlayText.textContent = text;
+  }
+
+  hideStatus() {
+    this.status.style.display = "none";
+  }
+
+  showStatus(text: string, buttonCallback: (() => void) | null = null, buttonText: string = "") {
+    this.status.style.display = "flex";
+    if (buttonCallback) {
+      this.statusButton.style.display = "block";
+      this.statusButton.textContent = buttonText;
+      this.statusButton.disabled = false;
+      this.statusButton.onclick = () => {
+        this.statusButton.disabled = true;
+        buttonCallback();
+      };
+    } else {
+      this.statusButton.style.display = "none";
+    }
+    this.statusText.textContent = text;
   }
 })();

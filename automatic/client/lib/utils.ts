@@ -1,3 +1,5 @@
+import { UI } from "./ui";
+
 /**
  * Interruptable version of basic async sleep implementation.
  * We all know it, we all love it.
@@ -54,17 +56,13 @@ export function waitForValue<T>(
 
 /**
  * Wrapper that allows to use interruptable functions as promises.
- * As of now, interrupt callback is assigned to global window so user can trigger it in console.
- * In future there will be interrupt button in UI.
+ * While promise is pending, status message is shown in UI with interrupt button.
  * @param interruptable The return value of interruptable function
  * @returns Promise that can be awaited
  */
-export function awaitWrapper<T>(interruptable: [Promise<T>, () => void]): Promise<T> {
+export function awaitWrapper<T>(interruptable: [Promise<T>, () => void], message: string): Promise<T> {
   let [promise, interrupt] = interruptable;
-  // TODO: When UI is implemented, make interrupt button in there. For now just letting user interrupt via console.
-  // @ts-ignore
-  unsafeWindow._interrupt = interrupt;
-  // @ts-ignore
-  promise.then(() => (unsafeWindow._interrupt = null));
+  UI.showStatus(message, interrupt, "Interrupt");
+  promise.then(() => UI.hideStatus());
   return promise;
 }
