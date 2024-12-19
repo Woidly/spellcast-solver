@@ -59,12 +59,10 @@ export const UI = new (class UI {
     creditsContainer.innerHTML = "(c) 2024 <span>Woidly</span>";
     // Overlay
     let overlay = createElement(root, "div");
-    overlay.className = "WS-centre WS-overlay";
-    let overlayCentre = createElement(overlay, "div");
-    overlayCentre.className = "WS-centre";
-    let overlayText = createElement(overlayCentre, "span");
+    overlay.className = "WS-status WS-centre WS-overlay";
+    let overlayText = createElement(overlay, "span");
     overlayText.textContent = "Loading";
-    let overlayButton = createElement(overlayCentre, "button");
+    let overlayButton = createElement(overlay, "button");
     overlayButton.style.display = "none";
     // Assign all the stuff
     this.threadsInput = threadsInput;
