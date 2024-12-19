@@ -52,10 +52,10 @@ const GAMEPLAY = new (class GlobalGameplay {
   isBusy: boolean;
 
   constructor() {
-    // This is safe, since all usages of this.game happen after handleHook sets this.game to actual Game.
     let canvas = document.querySelector("canvas#gameCanvas") as HTMLCanvasElement;
     if (!canvas) throw new Error("Failed to get game canvas");
     this.canvas = canvas;
+    // This is safe, since all usages of this.game happen after handleHook sets this.game to actual Game.
     this.game = {} as Game;
     this.isBusy = false;
   }
@@ -107,8 +107,9 @@ const GAMEPLAY = new (class GlobalGameplay {
   }
 
   // TODO: Add error handler for all the stuff that happens in play() (it's mostly interrupt errors).
-  async play(isMyTurn: boolean) {
-    if (!isMyTurn) return UI.showStatus("Not our turn");
+  async play() {
+    if (!this.game.isMyTurn) return UI.showStatus("Not our turn");
+    if (this.isBusy) return;
     this.isBusy = true;
     // First isMyTurn=true in  usually happens before board is ready.
     await awaitWrapper(
@@ -147,22 +148,25 @@ const GAMEPLAY = new (class GlobalGameplay {
     this.isBusy = false;
   }
 
-  handleHook(game: Game, isMyTurn: boolean) {
+  handleCurrentState() {
+    switch (this.game.currentGameState) {
+      case GameState.MENU:
+        return UI.showStatus("Idle");
+      case GameState.GAME:
+        return this.play();
+      case GameState.GAMEOVER:
+        return UI.showStatus("GG!");
+    }
+  }
+
+  handleHook(game: Game) {
     this.game = game;
     //@ts-ignore
     unsafeWindow._game = this.game;
     //@ts-ignore
     unsafeWindow._gg = this;
     UI.hideOverlay();
-    if (this.isBusy) return;
-    switch (game.currentGameState) {
-      case GameState.MENU:
-        return UI.showStatus("Idle");
-      case GameState.GAME:
-        return this.play(isMyTurn);
-      case GameState.GAMEOVER:
-        return UI.showStatus("GG!");
-    }
+    this.handleCurrentState();
   }
 })();
 
@@ -175,7 +179,7 @@ function hookCallback(this: Game, isMyTurn: boolean) {
     set: hookCallback,
   });
   if (typeof this.spellbook !== "undefined") {
-    GAMEPLAY.handleHook(this, isMyTurn);
+    GAMEPLAY.handleHook(this);
   }
 }
 
