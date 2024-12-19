@@ -77,9 +77,10 @@ export type BoardData = {
 };
 
 export enum GameState {
-  MENU = 1,
-  GAME = 2,
-  GAMEOVER = 3,
+  LOBBY = 1,
+  PLAYING = 2,
+  GAME_OVER = 3,
+  // There are also WAITING = 0 and SINGLEPLAYER_MAP = 4, but those are unused.
 }
 
 /** This single object carries the whole thing */

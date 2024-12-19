@@ -150,12 +150,14 @@ const GAMEPLAY = new (class GlobalGameplay {
 
   handleCurrentState() {
     switch (this.game.currentGameState) {
-      case GameState.MENU:
+      case GameState.LOBBY:
         return UI.showStatus("Idle");
-      case GameState.GAME:
+      case GameState.PLAYING:
         return this.play();
-      case GameState.GAMEOVER:
+      case GameState.GAME_OVER:
         return UI.showStatus("GG!");
+      default:
+        return UI.showStatus("How Did We Get Here?");
     }
   }
 
