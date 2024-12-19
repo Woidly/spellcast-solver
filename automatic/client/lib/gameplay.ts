@@ -163,12 +163,14 @@ const GAMEPLAY = new (class GlobalGameplay {
 
   handleHook(game: Game) {
     this.game = game;
-    //@ts-ignore
-    unsafeWindow._game = this.game;
-    //@ts-ignore
-    unsafeWindow._gg = this;
     UI.hideOverlay();
     this.handleCurrentState();
+    // @ts-ignore
+    unsafeWindow.WSdebug = {
+      game,
+      gg: this,
+      ui: UI,
+    };
   }
 })();
 
