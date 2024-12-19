@@ -106,7 +106,6 @@ const GAMEPLAY = new (class GlobalGameplay {
     );
   }
 
-  // TODO: Add error handler for all the stuff that happens in play() (it's mostly interrupt errors).
   async play() {
     if (!this.game.isMyTurn) return UI.showStatus("Not our turn");
     if (this.isBusy) return;
@@ -127,7 +126,7 @@ const GAMEPLAY = new (class GlobalGameplay {
     let best = result.words[0];
     if (!best) {
       // TODO: Add ability to retry. Or board shuffle.
-      return console.error("No solution found");
+      throw new Error("No solution found");
     }
     for (let step of best.steps) {
       if (step.swap && step.new_letter) {
@@ -148,12 +147,27 @@ const GAMEPLAY = new (class GlobalGameplay {
     this.isBusy = false;
   }
 
+  errorHandler(e: any) {
+    console.error(e);
+    let string = e + "";
+    UI.showOverlay(
+      `${string.length < 75 ? string : string.slice(0, 75) + "..."} (check the console)`,
+      () => {
+        this.isBusy = false;
+        UI.hideOverlay();
+        UI.showStatus("Trying to recover...");
+        this.handleCurrentState();
+      },
+      "Recover?"
+    );
+  }
+
   handleCurrentState() {
     switch (this.game.currentGameState) {
       case GameState.LOBBY:
         return UI.showStatus("Idle");
       case GameState.PLAYING:
-        return this.play();
+        return this.play().catch((e) => this.errorHandler(e));
       case GameState.GAME_OVER:
         return UI.showStatus("GG!");
       default:
