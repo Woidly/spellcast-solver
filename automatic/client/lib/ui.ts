@@ -1,5 +1,4 @@
-// FIXME: This line breaks Prettier, formatting doesn't work in this file.
-import style from "../style.css" with {type: "text"};
+import style from "../style.css";
 
 /**
  * Creates element of specified type, appends it to parent and returns it with proper type.
@@ -75,7 +74,7 @@ export const UI = new (class UI {
     this.overlay = overlay;
     this.overlayText = overlayText;
     this.overlayButton = overlayButton;
-    
+
     this.loadConfig();
   }
 
