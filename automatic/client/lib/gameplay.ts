@@ -50,6 +50,7 @@ const GAMEPLAY = new (class GlobalGameplay {
   canvas: HTMLCanvasElement;
   game: Game;
   isBusy: boolean;
+  isError: boolean;
   watchdog: number | null;
 
   constructor() {
@@ -59,6 +60,7 @@ const GAMEPLAY = new (class GlobalGameplay {
     // This is safe, since all usages of this.game happen after handleHook sets this.game to actual Game.
     this.game = {} as Game;
     this.isBusy = false;
+    this.isError = false;
     this.watchdog = null;
   }
 
@@ -151,12 +153,14 @@ const GAMEPLAY = new (class GlobalGameplay {
   }
 
   errorHandler(e: any) {
+    this.isError = true;
     console.error(e);
     let string = e + "";
     UI.showOverlay(
       `${string.length < 75 ? string : string.slice(0, 75) + "..."} (check the console)`,
       () => {
         this.isBusy = false;
+        this.isError = false;
         UI.hideOverlay();
         UI.showStatus("Trying to recover...");
         this.handleCurrentState();
@@ -197,14 +201,16 @@ const GAMEPLAY = new (class GlobalGameplay {
 
   handleHook(game: Game) {
     this.game = game;
-    UI.hideOverlay();
-    this.handleCurrentState();
     // @ts-ignore
     unsafeWindow.WSdebug = {
       game,
       gg: this,
       ui: UI,
     };
+
+    if (this.isError) return;
+    UI.hideOverlay();
+    this.handleCurrentState();
   }
 })();
 
