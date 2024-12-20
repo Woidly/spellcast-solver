@@ -66,7 +66,7 @@ export const UI = new (class UI {
     let creditsContainer = createElement(container, "div", "WS-credits");
     creditsContainer.innerHTML = "(c) 2024 <span>Woidly</span>";
     // Overlay
-    let overlay = createElement(root, "div", "WS-status WS-centre WS-overlay");
+    let overlay = createElement(root, "div", "WS-status WS-overlay");
     let overlayText = createElement(overlay, "span");
     overlayText.textContent = "Loading";
     let overlayButton = createElement(overlay, "button");

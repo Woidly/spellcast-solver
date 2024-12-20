@@ -19,6 +19,7 @@
 .WS-config {
   scale: 0.7;
   margin: -7px;
+  margin-left: -20px;
   display: flex;
   flex-direction: column;
 }
@@ -27,8 +28,7 @@
   width: 3em;
 }
 
-.WS-status span,
-.WS-overlay span {
+.WS-status span {
   margin-right: 5px;
 }
 
@@ -36,14 +36,11 @@
   color: #a0f;
 }
 
-.WS-centre {
+.WS-overlay {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-}
-
-.WS-overlay {
   background: #fffc;
   width: 100%;
   height: 100%;
@@ -56,7 +53,6 @@
   font-weight: bold;
   color: black;
   overflow-wrap: anywhere;
-  margin-left: 5px;
   font-size: 12px;
 }
 
