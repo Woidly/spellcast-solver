@@ -8,9 +8,12 @@ import style from "../style.css";
  */
 function createElement<T extends keyof HTMLElementTagNameMap>(
   parent: HTMLElement,
-  tagName: T
+  tagName: T,
+  className: string = ""
 ): HTMLElementTagNameMap[T] {
-  return parent.appendChild(document.createElement(tagName));
+  let element = parent.appendChild(document.createElement(tagName));
+  element.className = className;
+  return element;
 }
 
 const DEFAULTS = {
@@ -30,13 +33,10 @@ export const UI = new (class UI {
     // Inject CSS.
     createElement(document.body, "style").textContent = style;
     // I wish they made framework-less JSX lol.
-    let root = createElement(document.body, "div");
-    root.className = "WS-root";
-    let container = createElement(root, "div");
-    container.className = "WS-container";
+    let root = createElement(document.body, "div", "WS-root");
+    let container = createElement(root, "div", "WS-container");
     // Config
-    let configContainer = createElement(container, "div");
-    configContainer.className = "WS-config";
+    let configContainer = createElement(container, "div", "WS-config");
     // -> Thread count
     let threadsLabel = createElement(configContainer, "label");
     let threadsInput = createElement(threadsLabel, "input");
@@ -47,19 +47,16 @@ export const UI = new (class UI {
     threadsInput.onchange = this.saveConfig.bind(this);
     threadsLabel.appendChild(document.createTextNode(" threads"));
     // Status
-    let status = createElement(container, "div");
-    status.className = "WS-status";
+    let status = createElement(container, "div", "WS-status");
     let statusText = createElement(status, "span");
     statusText.textContent = "Loading...";
     let statusButton = createElement(status, "button");
     statusButton.style.display = "none";
     // Credits
-    let creditsContainer = createElement(container, "div");
-    creditsContainer.className = "WS-credits";
+    let creditsContainer = createElement(container, "div", "WS-credits");
     creditsContainer.innerHTML = "(c) 2024 <span>Woidly</span>";
     // Overlay
-    let overlay = createElement(root, "div");
-    overlay.className = "WS-status WS-centre WS-overlay";
+    let overlay = createElement(root, "div", "WS-status WS-centre WS-overlay");
     let overlayText = createElement(overlay, "span");
     overlayText.textContent = "Loading";
     let overlayButton = createElement(overlay, "button");
