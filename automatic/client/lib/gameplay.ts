@@ -113,7 +113,6 @@ const GAMEPLAY = new (class GlobalGameplay {
   async play() {
     if (!this.game.isMyTurn) return UI.showStatus("Not our turn");
     if (this.isBusy) return;
-    if (!this.watchdog) this.setupWatchdog();
     this.isBusy = true;
     // First isMyTurn=true in  usually happens before board is ready.
     await awaitWrapper(
@@ -191,6 +190,7 @@ const GAMEPLAY = new (class GlobalGameplay {
       case GameState.LOBBY:
         return UI.showStatus("Idle");
       case GameState.PLAYING:
+        if (!this.watchdog) this.setupWatchdog();
         return this.play().catch((e) => this.errorHandler(e));
       case GameState.GAME_OVER:
         return UI.showStatus("GG!");
