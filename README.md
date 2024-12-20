@@ -34,4 +34,6 @@ Results are in milliseconds, rounded to one decimal place and calculated as the 
 | 12 threads | 0.6 ms  | 1.7 ms | 30.4 ms  | 478.6 ms  |
 
 > [!NOTE]
-> Times shown in table do not include time it takes to load dictionary, which averaged `72.4 ms` over two benchmarks (it is not affected by thread count).
+> Times shown in table do not include time it takes to load dictionary.
+> With new binary dictionary cache, average dictionary load time is `22.7 ms`.
+> When program is launched for the first time (dictionary cache isn't yet created), load time is around `~100 ms`.
