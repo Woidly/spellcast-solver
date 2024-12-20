@@ -1,6 +1,10 @@
-use std::{fs::read_to_string, path::PathBuf};
+use std::{
+    fs::{read, read_to_string, write},
+    path::PathBuf,
+};
 
 /// A node in dictionary tree.
+#[derive(serde::Deserialize, serde::Serialize)]
 pub enum Node {
     /// Node is a prefix. It can only be followed by child nodes (`self.next_letters`) and is useless on its own.
     Prefix { next_letters: Vec<(char, Node)> },
@@ -101,10 +105,29 @@ pub fn load_dictionary_tree(string: String) -> Vec<(char, Node)> {
 /// Loads dictionary from file.
 /// Basically a wrapper for [load_dictionary_tree] that handles file access.
 pub fn load_dictionary_file(path: &String) -> Result<Vec<(char, Node)>, String> {
-    let path = PathBuf::from(path);
-    if !path.is_file() {
+    let txt_path = PathBuf::from(path);
+    let bin_path = PathBuf::from(path.to_owned() + ".bin");
+    if bin_path.is_file() {
+        match read(&bin_path) {
+            Ok(content) => match bincode::deserialize::<Vec<(char, Node)>>(&content) {
+                Ok(dictionary) => return Ok(dictionary),
+                Err(e) => eprintln!("Failed to load binary cache: {e}"),
+            },
+            Err(e) => eprintln!("Failed to read binary cache file: {e}"),
+        }
+    }
+    if !txt_path.is_file() {
         return Err("File not found".into());
     }
     let content = read_to_string(path).map_err(|e| format!("Failed to read the file: {e}"))?;
-    Ok(load_dictionary_tree(content))
+    let dictionary = load_dictionary_tree(content);
+    match bincode::serialize(&dictionary) {
+        Ok(binary) => {
+            if let Err(e) = write(bin_path, binary) {
+                eprintln!("Failed to write binary cache file: {e}");
+            }
+        }
+        Err(e) => eprintln!("Failed to serialise binary cache: {e}"),
+    }
+    Ok(dictionary)
 }
