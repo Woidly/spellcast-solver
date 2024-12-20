@@ -12,7 +12,9 @@ function createElement<T extends keyof HTMLElementTagNameMap>(
   className: string = ""
 ): HTMLElementTagNameMap[T] {
   let element = parent.appendChild(document.createElement(tagName));
-  element.className = className;
+  if (className) {
+    element.className = className;
+  }
   return element;
 }
 
