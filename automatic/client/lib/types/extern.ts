@@ -120,4 +120,10 @@ export type Game = Sprite & {
       currentRound: number;
     };
   };
+  timeOutElement: {
+    startTimerButton: Sprite & {
+      /** Whether "Start timer" button is enabled */
+      enabled: boolean;
+    };
+  };
 };

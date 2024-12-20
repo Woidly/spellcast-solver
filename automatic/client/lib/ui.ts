@@ -18,10 +18,12 @@ function createElement<T extends keyof HTMLElementTagNameMap>(
 
 const DEFAULTS = {
   threads: window?.navigator?.hardwareConcurrency || 8,
+  timer: true,
 };
 
 export const UI = new (class UI {
   threadsInput: HTMLInputElement;
+  timerInput: HTMLInputElement;
   status: HTMLDivElement;
   statusText: HTMLSpanElement;
   statusButton: HTMLButtonElement;
@@ -46,6 +48,12 @@ export const UI = new (class UI {
     threadsInput.step = "1";
     threadsInput.onchange = this.saveConfig.bind(this);
     threadsLabel.appendChild(document.createTextNode(" threads"));
+    // -> Auto start timer
+    let timerLabel = createElement(configContainer, "label");
+    let timerInput = createElement(timerLabel, "input");
+    timerInput.type = "checkbox";
+    timerInput.onchange = this.saveConfig.bind(this);
+    timerLabel.appendChild(document.createTextNode(" auto start timer?"));
     // Status
     let status = createElement(container, "div", "WS-status");
     let statusText = createElement(status, "span");
@@ -63,6 +71,7 @@ export const UI = new (class UI {
     overlayButton.style.display = "none";
     // Assign all the stuff
     this.threadsInput = threadsInput;
+    this.timerInput = timerInput;
     this.status = status;
     this.statusText = statusText;
     this.statusButton = statusButton;
@@ -75,6 +84,7 @@ export const UI = new (class UI {
 
   loadConfig() {
     let threads = DEFAULTS.threads;
+    let timer = DEFAULTS.timer;
     try {
       let threadsValue = localStorage.getItem("WS-threads");
       if (threadsValue) {
@@ -83,15 +93,19 @@ export const UI = new (class UI {
           threads = parsed;
         }
       }
+      let timerValue = localStorage.getItem("WS-timer");
+      if (timerValue) timer = timerValue == "true";
     } catch (e) {
       console.warn("Failed to load the config from localStorage", e);
     }
     this.threadsInput.value = threads.toString();
+    this.timerInput.checked = timer;
   }
 
   saveConfig() {
     try {
       localStorage.setItem("WS-threads", this.threadsInput.value);
+      localStorage.setItem("WS-timer", this.timerInput.checked.toString());
     } catch (e) {
       console.warn("Failed to save the config to localStorage", e);
     }
@@ -104,6 +118,10 @@ export const UI = new (class UI {
       threads = parsed;
     }
     return threads;
+  }
+
+  getTimer(): boolean {
+    return this.timerInput.checked;
   }
 
   hideOverlay() {

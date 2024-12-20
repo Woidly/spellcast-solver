@@ -170,6 +170,15 @@ const GAMEPLAY = new (class GlobalGameplay {
       if (!this.isBusy && this.game.isMyTurn && !this.game.board.isLocked) {
         this.handleCurrentState();
       }
+      if (
+        !this.isBusy &&
+        this.game.currentGameState == GameState.PLAYING &&
+        !this.game.isMyTurn &&
+        UI.getTimer() &&
+        this.game.timeOutElement.startTimerButton.enabled
+      ) {
+        this.clickSprite(this.game.timeOutElement.startTimerButton);
+      }
     }, 500);
   }
 
