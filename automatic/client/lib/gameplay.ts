@@ -50,6 +50,7 @@ const GAMEPLAY = new (class GlobalGameplay {
   canvas: HTMLCanvasElement;
   game: Game;
   isBusy: boolean;
+  watchdog: number | null;
 
   constructor() {
     let canvas = document.querySelector("canvas#gameCanvas") as HTMLCanvasElement;
@@ -58,6 +59,7 @@ const GAMEPLAY = new (class GlobalGameplay {
     // This is safe, since all usages of this.game happen after handleHook sets this.game to actual Game.
     this.game = {} as Game;
     this.isBusy = false;
+    this.watchdog = null;
   }
 
   moveToSprite(sprite: Sprite) {
@@ -109,6 +111,7 @@ const GAMEPLAY = new (class GlobalGameplay {
   async play() {
     if (!this.game.isMyTurn) return UI.showStatus("Not our turn");
     if (this.isBusy) return;
+    if (!this.watchdog) this.setupWatchdog();
     this.isBusy = true;
     // First isMyTurn=true in  usually happens before board is ready.
     await awaitWrapper(
@@ -160,6 +163,14 @@ const GAMEPLAY = new (class GlobalGameplay {
       },
       "Recover?"
     );
+  }
+
+  setupWatchdog() {
+    this.watchdog = window.setInterval(() => {
+      if (!this.isBusy && this.game.isMyTurn && !this.game.board.isLocked) {
+        this.handleCurrentState();
+      }
+    }, 500);
   }
 
   handleCurrentState() {
