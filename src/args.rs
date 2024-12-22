@@ -51,7 +51,7 @@ impl FromArgValue for OutputFormat {
             "board" => Ok(Self::Board),
             "json" => Ok(Self::JSON),
             "simple" => Ok(Self::Simple),
-            _ => Err(String::from("Expected json/simple")),
+            _ => Err(String::from("Expected board/json/simple")),
         }
     }
 }
